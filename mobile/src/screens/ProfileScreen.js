@@ -1,0 +1,314 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  RefreshControl,
+  Alert,
+  TextInput,
+  Modal,
+} from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import { getUserRecipes, getSavedRecipes, getLikedRecipes, updateProfile, uploadImage } from '../services/api';
+import RecipeDetailModal from '../components/RecipeDetailModal';
+import styles from '../styles/styles';
+
+const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
+  const [activeTab, setActiveTab] = useState('uploaded');
+  const [recipes, setRecipes] = useState([]);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editBio, setEditBio] = useState(user?.bio || '');
+  const [editAvatar, setEditAvatar] = useState(user?.avatar || '');
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+
+  useEffect(() => {
+    loadRecipes();
+  }, [activeTab]);
+
+  const loadRecipes = async () => {
+    try {
+      setLoading(true);
+      let data;
+      
+      switch (activeTab) {
+        case 'uploaded':
+          data = await getUserRecipes(token);
+          break;
+        case 'saved':
+          data = await getSavedRecipes(token);
+          break;
+        case 'liked':
+          data = await getLikedRecipes(token);
+          break;
+        default:
+          data = [];
+      }
+      
+      setRecipes(data);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load recipes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadRecipes();
+    setRefreshing(false);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleLogoutPress = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Logout', onPress: onLogout, style: 'destructive' }
+      ]
+    );
+  };
+
+  const pickProfileImage = async () => {
+    try {
+      const { status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'We need camera roll permissions.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!result.canceled) {
+        const uploadResult = await uploadImage(token, `data:image/jpeg;base64,${result.assets[0].base64}`);
+        setEditAvatar(uploadResult.url);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to upload image');
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      setUpdatingProfile(true);
+      const result = await updateProfile(token, {
+        name: editName,
+        bio: editBio,
+        avatar: editAvatar
+      });
+      
+      // Update local user state
+      if (onUserUpdate) {
+        onUserUpdate(result.user);
+      }
+      
+      Alert.alert('Success', 'Profile updated successfully!');
+      setEditModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile');
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
+
+  const openEditModal = () => {
+    setEditName(user?.name || '');
+    setEditBio(user?.bio || '');
+    setEditAvatar(user?.avatar || '');
+    setEditModalVisible(true);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={styles.container}>
+      <LinearGradient colors={['#F97316', '#EF4444']} style={styles.profileHeader}>
+        <TouchableOpacity 
+          style={styles.editProfileButton}
+          onPress={openEditModal}
+        >
+          <Text style={styles.editProfileText}>✏️ Edit</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.profileInfo}>
+          <Image 
+            source={{ uri: user?.avatar }} 
+            style={styles.profileAvatarImage}
+          />
+          <Text style={styles.profileName}>{user?.name}</Text>
+          <Text style={styles.profileEmail}>{user?.email}</Text>
+          <Text style={styles.profileBio}>{user?.bio}</Text>
+        </View>
+      </LinearGradient>
+
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'uploaded' && styles.tabActive]}
+          onPress={() => handleTabChange('uploaded')}
+        >
+          <Text style={[styles.tabText, activeTab === 'uploaded' && styles.tabTextActive]}>
+            Uploaded
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'saved' && styles.tabActive]}
+          onPress={() => handleTabChange('saved')}
+        >
+          <Text style={[styles.tabText, activeTab === 'saved' && styles.tabTextActive]}>
+            Saved
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'liked' && styles.tabActive]}
+          onPress={() => handleTabChange('liked')}
+        >
+          <Text style={[styles.tabText, activeTab === 'liked' && styles.tabTextActive]}>
+            Liked
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        style={styles.recipeList}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading...</Text>
+          </View>
+        ) : recipes.length > 0 ? (
+          recipes.map((recipe) => (
+            <TouchableOpacity
+              key={recipe._id}
+              style={styles.recipeListItem}
+              onPress={() => setSelectedRecipe(recipe)}
+            >
+              <Image source={{ uri: recipe.image }} style={styles.recipeListImage} />
+              <View style={styles.recipeListInfo}>
+                <Text style={styles.recipeListTitle} numberOfLines={2}>
+                  {recipe.title}
+                </Text>
+                <Text style={styles.recipeListMeta}>
+                  {recipe.cuisine} • {recipe.prepTime}
+                </Text>
+                <View style={styles.recipeListStats}>
+                  <Text style={styles.recipeListStat}>❤️ {recipe.likesCount}</Text>
+                  <Text style={styles.recipeListStat}>🔖 {recipe.savesCount}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              {activeTab === 'uploaded' && 'No recipes uploaded yet'}
+              {activeTab === 'saved' && 'No saved recipes'}
+              {activeTab === 'liked' && 'No liked recipes'}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+
+      <TouchableOpacity onPress={handleLogoutPress} style={styles.logoutButton}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
+
+      
+
+    {/* Edit Profile Modal */}
+    <Modal
+    visible={editModalVisible}
+    animationType="slide"
+    onRequestClose={() => setEditModalVisible(false)}
+    >
+    <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+        <View style={styles.editModalHeader}>
+        <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+            <Text style={styles.editModalCancel}>Cancel</Text>
+        </TouchableOpacity>
+        <Text style={styles.editModalTitle}>Edit Profile</Text>
+        <TouchableOpacity 
+            onPress={handleUpdateProfile}
+            disabled={updatingProfile}
+        >
+            <Text style={[styles.editModalSave, updatingProfile && { opacity: 0.5 }]}>
+            {updatingProfile ? 'Saving...' : 'Save'}
+            </Text>
+        </TouchableOpacity>
+        </View>
+
+        <ScrollView 
+        style={{ flex: 1, padding: 20 }}
+        contentContainerStyle={{ paddingBottom: 60 }}
+        showsVerticalScrollIndicator={false}
+        >
+        <View style={styles.editAvatarContainer}>
+            <Image 
+            source={{ uri: editAvatar }} 
+            style={styles.editAvatarImage}
+            />
+            <TouchableOpacity 
+            style={styles.changeAvatarButton}
+            onPress={pickProfileImage}
+            >
+            <Text style={styles.changeAvatarText}>Change Photo</Text>
+            </TouchableOpacity>
+        </View>
+
+        <Text style={styles.label}>Name</Text>
+        <TextInput
+            style={styles.uploadInput}
+            value={editName}
+            onChangeText={setEditName}
+            placeholder="Your name"
+            placeholderTextColor="#9CA3AF"
+        />
+
+        <Text style={styles.label}>Bio</Text>
+        <TextInput
+            style={[styles.uploadInput, styles.textArea]}
+            value={editBio}
+            onChangeText={setEditBio}
+            placeholder="Tell us about yourself..."
+            placeholderTextColor="#9CA3AF"
+            multiline
+            numberOfLines={4}
+        />
+        </ScrollView>
+    </View>
+    </Modal>
+
+      <RecipeDetailModal
+        visible={!!selectedRecipe}
+        recipe={selectedRecipe}
+        onClose={() => setSelectedRecipe(null)}
+        onLike={() => loadRecipes()}
+        onSave={() => loadRecipes()}
+        token={token}
+      />
+    </View>
+    </SafeAreaView>
+  );
+};
+
+export default ProfileScreen;
