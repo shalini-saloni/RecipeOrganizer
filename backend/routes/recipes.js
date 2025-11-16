@@ -92,6 +92,70 @@ router.post('/', auth, [
   }
 });
 
+// Update recipe
+router.put('/:id', auth, [
+  body('title').trim().notEmpty(),
+  body('description').trim().notEmpty(),
+  body('cuisine').trim().notEmpty(),
+  body('ingredients').isArray({ min: 1 }),
+  body('instructions').trim().notEmpty(),
+  body('prepTime').trim().notEmpty(),
+  body('servings').isInt({ min: 1 })
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const recipe = await Recipe.findById(req.params.id);
+    
+    if (!recipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+
+    // Check if user owns the recipe
+    if (recipe.userId.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Not authorized to edit this recipe' });
+    }
+
+    // Update recipe fields
+    Object.assign(recipe, req.body);
+    await recipe.save();
+    await recipe.populate('userId', 'name avatar');
+
+    res.json({
+      ...recipe.toObject(),
+      likesCount: recipe.likes.length,
+      savesCount: recipe.saves.length
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete recipe
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+    
+    if (!recipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+
+    // Check if user owns the recipe
+    if (recipe.userId.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Not authorized to delete this recipe' });
+    }
+
+    await Recipe.findByIdAndDelete(req.params.id);
+    
+    res.json({ message: 'Recipe deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Toggle like
 router.post('/:id/like', auth, async (req, res) => {
   try {

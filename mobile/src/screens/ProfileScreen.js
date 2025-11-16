@@ -10,10 +10,17 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
-import { getUserRecipes, getSavedRecipes, getLikedRecipes, updateProfile, uploadImage } from '../services/api';
+import { 
+  getUserRecipes, 
+  getSavedRecipes, 
+  getLikedRecipes, 
+  updateProfile, 
+  uploadImage,
+  deleteRecipe,
+  updateRecipe
+} from '../services/api';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import styles from '../styles/styles';
 
@@ -28,6 +35,18 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
   const [editBio, setEditBio] = useState(user?.bio || '');
   const [editAvatar, setEditAvatar] = useState(user?.avatar || '');
   const [updatingProfile, setUpdatingProfile] = useState(false);
+
+  // Edit Recipe States
+  const [editRecipeModalVisible, setEditRecipeModalVisible] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState(null);
+  const [editRecipeTitle, setEditRecipeTitle] = useState('');
+  const [editRecipeDescription, setEditRecipeDescription] = useState('');
+  const [editRecipeCuisine, setEditRecipeCuisine] = useState('');
+  const [editRecipeIngredients, setEditRecipeIngredients] = useState('');
+  const [editRecipePrepTime, setEditRecipePrepTime] = useState('');
+  const [editRecipeServings, setEditRecipeServings] = useState('');
+  const [editRecipeInstructions, setEditRecipeInstructions] = useState('');
+  const [editRecipeImage, setEditRecipeImage] = useState(null);
 
   useEffect(() => {
     loadRecipes();
@@ -83,7 +102,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
 
   const pickProfileImage = async () => {
     try {
-      const { status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       
       if (status !== 'granted') {
         Alert.alert('Permission Denied', 'We need camera roll permissions.');
@@ -116,7 +135,6 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         avatar: editAvatar
       });
       
-      // Update local user state
       if (onUserUpdate) {
         onUserUpdate(result.user);
       }
@@ -137,8 +155,106 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
     setEditModalVisible(true);
   };
 
+  // Delete Recipe
+  const handleDeleteRecipe = (recipe) => {
+    Alert.alert(
+      'Delete Recipe',
+      `Are you sure you want to delete "${recipe.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteRecipe(token, recipe._id);
+              Alert.alert('Success', 'Recipe deleted successfully!');
+              loadRecipes();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete recipe');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // Edit Recipe
+  const handleEditRecipe = (recipe) => {
+    setEditingRecipe(recipe);
+    setEditRecipeTitle(recipe.title);
+    setEditRecipeDescription(recipe.description);
+    setEditRecipeCuisine(recipe.cuisine);
+    setEditRecipeIngredients(recipe.ingredients.join(', '));
+    setEditRecipePrepTime(recipe.prepTime);
+    setEditRecipeServings(recipe.servings.toString());
+    setEditRecipeInstructions(recipe.instructions);
+    setEditRecipeImage(null);
+    setEditRecipeModalVisible(true);
+  };
+
+  const pickRecipeImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'We need camera roll permissions.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!result.canceled) {
+        setEditRecipeImage(result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const handleUpdateRecipe = async () => {
+    if (!editRecipeTitle || !editRecipeDescription || !editRecipeCuisine || 
+        !editRecipeIngredients || !editRecipePrepTime || !editRecipeServings || 
+        !editRecipeInstructions) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
+
+    try {
+      let imageUrl = editingRecipe.image;
+      
+      if (editRecipeImage && editRecipeImage.base64) {
+        const uploadResult = await uploadImage(token, `data:image/jpeg;base64,${editRecipeImage.base64}`);
+        imageUrl = uploadResult.url;
+      }
+
+      const updatedRecipe = {
+        title: editRecipeTitle,
+        description: editRecipeDescription,
+        cuisine: editRecipeCuisine,
+        ingredients: editRecipeIngredients.split(',').map(i => i.trim()).filter(i => i),
+        prepTime: editRecipePrepTime,
+        servings: parseInt(editRecipeServings),
+        instructions: editRecipeInstructions,
+        image: imageUrl
+      };
+
+      await updateRecipe(token, editingRecipe._id, updatedRecipe);
+      Alert.alert('Success', 'Recipe updated successfully!');
+      setEditRecipeModalVisible(false);
+      loadRecipes();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update recipe');
+    }
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
     <View style={styles.container}>
       <LinearGradient colors={['#F97316', '#EF4444']} style={styles.profileHeader}>
         <TouchableOpacity 
@@ -198,25 +314,44 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
           </View>
         ) : recipes.length > 0 ? (
           recipes.map((recipe) => (
-            <TouchableOpacity
-              key={recipe._id}
-              style={styles.recipeListItem}
-              onPress={() => setSelectedRecipe(recipe)}
-            >
-              <Image source={{ uri: recipe.image }} style={styles.recipeListImage} />
-              <View style={styles.recipeListInfo}>
-                <Text style={styles.recipeListTitle} numberOfLines={2}>
-                  {recipe.title}
-                </Text>
-                <Text style={styles.recipeListMeta}>
-                  {recipe.cuisine} • {recipe.prepTime}
-                </Text>
-                <View style={styles.recipeListStats}>
-                  <Text style={styles.recipeListStat}>❤️ {recipe.likesCount}</Text>
-                  <Text style={styles.recipeListStat}>🔖 {recipe.savesCount}</Text>
+            <View key={recipe._id} style={styles.recipeListItem}>
+              <TouchableOpacity
+                style={styles.recipeListItemTouchable}
+                onPress={() => setSelectedRecipe(recipe)}
+              >
+                <Image source={{ uri: recipe.image }} style={styles.recipeListImage} />
+                <View style={styles.recipeListInfo}>
+                  <Text style={styles.recipeListTitle} numberOfLines={2}>
+                    {recipe.title}
+                  </Text>
+                  <Text style={styles.recipeListMeta}>
+                    {recipe.cuisine} • {recipe.prepTime}
+                  </Text>
+                  <View style={styles.recipeListStats}>
+                    <Text style={styles.recipeListStat}>❤️ {recipe.likesCount}</Text>
+                    <Text style={styles.recipeListStat}>🔖 {recipe.savesCount}</Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+
+              {/* Show Edit/Delete buttons only for uploaded recipes */}
+              {activeTab === 'uploaded' && (
+                <View style={styles.recipeListActions}>
+                  <TouchableOpacity
+                    style={styles.recipeActionButton}
+                    onPress={() => handleEditRecipe(recipe)}
+                  >
+                    <Text style={styles.recipeActionIcon}>✏️</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.recipeActionButton, styles.deleteButton]}
+                    onPress={() => handleDeleteRecipe(recipe)}
+                  >
+                    <Text style={styles.recipeActionIcon}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           ))
         ) : (
           <View style={styles.emptyContainer}>
@@ -233,70 +368,180 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
 
-      
-
-    {/* Edit Profile Modal */}
-    <Modal
-    visible={editModalVisible}
-    animationType="slide"
-    onRequestClose={() => setEditModalVisible(false)}
-    >
-    <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-        <View style={styles.editModalHeader}>
-        <TouchableOpacity onPress={() => setEditModalVisible(false)}>
-            <Text style={styles.editModalCancel}>Cancel</Text>
-        </TouchableOpacity>
-        <Text style={styles.editModalTitle}>Edit Profile</Text>
-        <TouchableOpacity 
-            onPress={handleUpdateProfile}
-            disabled={updatingProfile}
-        >
-            <Text style={[styles.editModalSave, updatingProfile && { opacity: 0.5 }]}>
-            {updatingProfile ? 'Saving...' : 'Save'}
-            </Text>
-        </TouchableOpacity>
-        </View>
-
-        <ScrollView 
-        style={{ flex: 1, padding: 20 }}
-        contentContainerStyle={{ paddingBottom: 60 }}
-        showsVerticalScrollIndicator={false}
-        >
-        <View style={styles.editAvatarContainer}>
-            <Image 
-            source={{ uri: editAvatar }} 
-            style={styles.editAvatarImage}
-            />
-            <TouchableOpacity 
-            style={styles.changeAvatarButton}
-            onPress={pickProfileImage}
-            >
-            <Text style={styles.changeAvatarText}>Change Photo</Text>
+      {/* Edit Profile Modal */}
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+          <View style={styles.editModalHeader}>
+            <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+              <Text style={styles.editModalCancel}>Cancel</Text>
             </TouchableOpacity>
+            <Text style={styles.editModalTitle}>Edit Profile</Text>
+            <TouchableOpacity 
+              onPress={handleUpdateProfile}
+              disabled={updatingProfile}
+            >
+              <Text style={[styles.editModalSave, updatingProfile && { opacity: 0.5 }]}>
+                {updatingProfile ? 'Saving...' : 'Save'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView 
+            style={{ flex: 1, padding: 20 }}
+            contentContainerStyle={{ paddingBottom: 60 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.editAvatarContainer}>
+              <Image 
+                source={{ uri: editAvatar }} 
+                style={styles.editAvatarImage}
+              />
+              <TouchableOpacity 
+                style={styles.changeAvatarButton}
+                onPress={pickProfileImage}
+              >
+                <Text style={styles.changeAvatarText}>Change Photo</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Name</Text>
+            <TextInput
+              style={styles.uploadInput}
+              value={editName}
+              onChangeText={setEditName}
+              placeholder="Your name"
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Bio</Text>
+            <TextInput
+              style={[styles.uploadInput, styles.textArea]}
+              value={editBio}
+              onChangeText={setEditBio}
+              placeholder="Tell us about yourself..."
+              placeholderTextColor="#9CA3AF"
+              multiline
+              numberOfLines={4}
+            />
+          </ScrollView>
         </View>
+      </Modal>
 
-        <Text style={styles.label}>Name</Text>
-        <TextInput
-            style={styles.uploadInput}
-            value={editName}
-            onChangeText={setEditName}
-            placeholder="Your name"
-            placeholderTextColor="#9CA3AF"
-        />
+      {/* Edit Recipe Modal */}
+      <Modal
+        visible={editRecipeModalVisible}
+        animationType="slide"
+        onRequestClose={() => setEditRecipeModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+          <View style={styles.editModalHeader}>
+            <TouchableOpacity onPress={() => setEditRecipeModalVisible(false)}>
+              <Text style={styles.editModalCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.editModalTitle}>Edit Recipe</Text>
+            <TouchableOpacity onPress={handleUpdateRecipe}>
+              <Text style={styles.editModalSave}>Save</Text>
+            </TouchableOpacity>
+          </View>
 
-        <Text style={styles.label}>Bio</Text>
-        <TextInput
-            style={[styles.uploadInput, styles.textArea]}
-            value={editBio}
-            onChangeText={setEditBio}
-            placeholder="Tell us about yourself..."
-            placeholderTextColor="#9CA3AF"
-            multiline
-            numberOfLines={4}
-        />
-        </ScrollView>
-    </View>
-    </Modal>
+          <ScrollView 
+            style={{ flex: 1, padding: 20 }}
+            contentContainerStyle={{ paddingBottom: 60 }}
+          >
+            {/* Image Upload */}
+            <Text style={styles.label}>Recipe Image</Text>
+            <TouchableOpacity 
+              style={styles.imageUploadContainer} 
+              onPress={pickRecipeImage}
+            >
+              {editRecipeImage ? (
+                <Image source={{ uri: editRecipeImage.uri }} style={styles.uploadedImage} />
+              ) : editingRecipe ? (
+                <Image source={{ uri: editingRecipe.image }} style={styles.uploadedImage} />
+              ) : (
+                <View style={styles.imageUploadPlaceholder}>
+                  <Text style={styles.imageUploadIcon}>📸</Text>
+                  <Text style={styles.imageUploadText}>Tap to change image</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <Text style={styles.label}>Recipe Title *</Text>
+            <TextInput
+              style={styles.uploadInput}
+              placeholder="e.g., Classic Margherita Pizza"
+              value={editRecipeTitle}
+              onChangeText={setEditRecipeTitle}
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Description *</Text>
+            <TextInput
+              style={[styles.uploadInput, styles.textArea]}
+              placeholder="Brief description of your recipe"
+              value={editRecipeDescription}
+              onChangeText={setEditRecipeDescription}
+              multiline
+              numberOfLines={3}
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Cuisine Type *</Text>
+            <TextInput
+              style={styles.uploadInput}
+              placeholder="e.g., Italian, Indian, Mexican"
+              value={editRecipeCuisine}
+              onChangeText={setEditRecipeCuisine}
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Ingredients (comma-separated) *</Text>
+            <TextInput
+              style={[styles.uploadInput, styles.textArea]}
+              placeholder="e.g., Flour, Tomatoes, Cheese"
+              value={editRecipeIngredients}
+              onChangeText={setEditRecipeIngredients}
+              multiline
+              numberOfLines={3}
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Prep Time *</Text>
+            <TextInput
+              style={styles.uploadInput}
+              placeholder="e.g., 30 min"
+              value={editRecipePrepTime}
+              onChangeText={setEditRecipePrepTime}
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Servings *</Text>
+            <TextInput
+              style={styles.uploadInput}
+              placeholder="e.g., 4"
+              value={editRecipeServings}
+              onChangeText={setEditRecipeServings}
+              keyboardType="numeric"
+              placeholderTextColor="#9CA3AF"
+            />
+
+            <Text style={styles.label}>Instructions *</Text>
+            <TextInput
+              style={[styles.uploadInput, styles.textAreaLarge]}
+              placeholder="Step by step cooking instructions"
+              value={editRecipeInstructions}
+              onChangeText={setEditRecipeInstructions}
+              multiline
+              numberOfLines={6}
+              placeholderTextColor="#9CA3AF"
+            />
+          </ScrollView>
+        </View>
+      </Modal>
 
       <RecipeDetailModal
         visible={!!selectedRecipe}
@@ -307,7 +552,6 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         token={token}
       />
     </View>
-    </SafeAreaView>
   );
 };
 

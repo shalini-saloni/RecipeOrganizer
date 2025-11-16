@@ -481,6 +481,35 @@ bottomNav: {
     color: '#9CA3AF',
     marginRight: 12,
   },
+  
+  recipeListItemTouchable: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+
+  recipeListActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 8,
+  },
+
+  recipeActionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+
+  deleteButton: {
+    backgroundColor: '#FEE2E2',
+  },
+
+  recipeActionIcon: {
+    fontSize: 18,
+  },
 
   // Logout Button
   logoutButton: {
