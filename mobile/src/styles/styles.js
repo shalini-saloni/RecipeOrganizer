@@ -298,28 +298,27 @@ actionIconNew: {
   fontSize: 28,
 },
 
-// // Remove the pagination dots space
-// pagination: {
-//   flexDirection: 'row',
-//   justifyContent: 'center',
-//   alignItems: 'center',
-//   paddingVertical: 12, // Reduced from 16
-//   backgroundColor: '#FFFFFF',
-//   height: 50, // Fixed height
-// },
+// Pagination Dots
+pagination: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#FFFFFF',
+  height: 20, 
+},
 
-// paginationDot: {
-//   width: 8,
-//   height: 8,
-//   borderRadius: 4,
-//   backgroundColor: '#D1D5DB',
-//   marginHorizontal: 4,
-// },
+paginationDot: {
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  backgroundColor: '#D1D5DB',
+  marginHorizontal: 4,
+},
 
-// paginationDotActive: {
-//   width: 24,
-//   backgroundColor: '#F97316',
-// },
+paginationDotActive: {
+  width: 24,
+  backgroundColor: '#F97316',
+},
 
 // Bottom nav adjustment
 bottomNav: {
@@ -334,7 +333,7 @@ bottomNav: {
   shadowOpacity: 0.1,
   shadowRadius: 4,
   elevation: 10,
-  height: 80, // Fixed height
+  height: 80, 
 },
 
   // Upload Screen
@@ -708,7 +707,7 @@ editModalHeader: {
     color: '#6B7280',
   },
 
-  // Updated Recipe Card Actions (Replace existing or add)
+  //Recipe Card Actions 
   recipeActionsBottomRight: {
     position: 'absolute',
     bottom: 20,
@@ -743,7 +742,7 @@ editModalHeader: {
     fontSize: 28,
   },
 
-  // Profile Avatar Image (Add these)
+  // Profile Avatar Image 
   profileAvatarImage: {
     width: 100,
     height: 100,
@@ -769,7 +768,7 @@ editModalHeader: {
     borderColor: '#FFFFFF',
   },
 
-  // Edit Profile Button (Add these)
+  // Edit Profile Button 
   editProfileButton: {
     position: 'absolute',
     top: 50,
@@ -787,7 +786,7 @@ editModalHeader: {
     fontWeight: '600',
   },
 
-  // Edit Profile Modal (Add these)
+  // Edit Profile Modal 
   editModalContainer: {
     flex: 1,
     backgroundColor: '#F9FAFB',

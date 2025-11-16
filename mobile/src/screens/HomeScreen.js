@@ -160,7 +160,7 @@ const HomeScreen = ({ user, token }) => {
             )}
           />
 
-        {/* <View style={styles.pagination}>
+        <View style={styles.pagination}>
           {recipes.slice(0, 5).map((_, index) => ( // Show max 5 dots
             <View
               key={index}
@@ -170,7 +170,7 @@ const HomeScreen = ({ user, token }) => {
               ]}
             />
           ))}
-        </View> */}
+        </View>
         
         </>
       ) : (
