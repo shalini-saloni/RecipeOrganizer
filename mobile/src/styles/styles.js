@@ -189,7 +189,7 @@ recipeGradient: {
   height: '50%',
   justifyContent: 'flex-end',
   paddingHorizontal: 20,
-  paddingBottom: 100, 
+  paddingBottom: 20,
 },
 
 recipeInfo: {
@@ -199,7 +199,7 @@ recipeInfo: {
 recipeUserInfo: {
   flexDirection: 'row',
   alignItems: 'center',
-  marginBottom: 20,
+  marginBottom: 10,
 },
 
 recipeUserAvatarImage: {
@@ -213,7 +213,7 @@ recipeUserAvatarImage: {
 
 recipeUserName: {
   color: '#FFFFFF',
-  fontSize: 15,
+  fontSize: 20,
   fontWeight: '600',
 },
 

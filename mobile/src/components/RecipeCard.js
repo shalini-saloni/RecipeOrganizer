@@ -57,7 +57,7 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave }) => {
               {recipe.title}
             </Text>
             
-            {/* Description - THIS WAS MISSING */}
+            {/* Description */}
             <Text style={styles.recipeDescription} numberOfLines={2}>
               {recipe.description}
             </Text>
