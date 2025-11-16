@@ -160,10 +160,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 
-  // Update or add these styles in your styles.js file
-
+// Recipe Card
 recipeCard: {
-  height: Dimensions.get('window').height - 250,
+  height: Dimensions.get('window').height - 350,
   backgroundColor: '#000',
   position: 'relative',
 },
@@ -190,7 +189,7 @@ recipeGradient: {
   height: '50%',
   justifyContent: 'flex-end',
   paddingHorizontal: 20,
-  paddingBottom: 100, // Space for bottom nav
+  paddingBottom: 100, 
 },
 
 recipeInfo: {
@@ -200,7 +199,7 @@ recipeInfo: {
 recipeUserInfo: {
   flexDirection: 'row',
   alignItems: 'center',
-  marginBottom: 12,
+  marginBottom: 20,
 },
 
 recipeUserAvatarImage: {
@@ -226,7 +225,6 @@ recipeTitle: {
   lineHeight: 32,
 },
 
-// THIS IS THE KEY STYLE FOR DESCRIPTION
 recipeDescription: {
   fontSize: 15,
   color: '#E5E7EB',
@@ -260,10 +258,9 @@ recipeStat: {
   fontWeight: '500',
 },
 
-// CRITICAL: These styles make buttons visible
 recipeActionsBottomRight: {
   position: 'absolute',
-  bottom: 120, // Adjusted to be above bottom nav
+  bottom: 120, 
   right: 20,
   flexDirection: 'column',
   zIndex: 10,
@@ -301,28 +298,28 @@ actionIconNew: {
   fontSize: 28,
 },
 
-// Remove the pagination dots space
-pagination: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingVertical: 12, // Reduced from 16
-  backgroundColor: '#FFFFFF',
-  height: 50, // Fixed height
-},
+// // Remove the pagination dots space
+// pagination: {
+//   flexDirection: 'row',
+//   justifyContent: 'center',
+//   alignItems: 'center',
+//   paddingVertical: 12, // Reduced from 16
+//   backgroundColor: '#FFFFFF',
+//   height: 50, // Fixed height
+// },
 
-paginationDot: {
-  width: 8,
-  height: 8,
-  borderRadius: 4,
-  backgroundColor: '#D1D5DB',
-  marginHorizontal: 4,
-},
+// paginationDot: {
+//   width: 8,
+//   height: 8,
+//   borderRadius: 4,
+//   backgroundColor: '#D1D5DB',
+//   marginHorizontal: 4,
+// },
 
-paginationDotActive: {
-  width: 24,
-  backgroundColor: '#F97316',
-},
+// paginationDotActive: {
+//   width: 24,
+//   backgroundColor: '#F97316',
+// },
 
 // Bottom nav adjustment
 bottomNav: {
