@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,32 +15,33 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleLike = (e) => {
-    e.stopPropagation(); // Prevent card press
+  const handleLike = () => {
     setIsLiked(!isLiked);
     onLike(recipe._id);
   };
 
-  const handleSave = (e) => {
-    e.stopPropagation(); // Prevent card press
+  const handleSave = () => {
     setIsSaved(!isSaved);
     onSave(recipe._id);
   };
 
   return (
     <View style={[styles.recipeCard, { width }]}>
+      {/* Main Image */}
+      <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+
+      {/* Tap to view details overlay */}
       <TouchableOpacity
         onPress={onPress}
-        activeOpacity={0.95}
-        style={styles.recipeCardTouchable}
+        activeOpacity={1}
+        style={styles.recipeCardOverlay}
       >
-        <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.85)']}
           style={styles.recipeGradient}
         >
           <View style={styles.recipeInfo}>
+            {/* User Info */}
             <View style={styles.recipeUserInfo}>
               <Image 
                 source={{ uri: recipe.userId?.avatar || 'https://ui-avatars.com/api/?name=User&background=F97316&color=fff' }} 
@@ -51,28 +52,21 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave }) => {
               </Text>
             </View>
 
-            <Text style={styles.recipeTitle}>{recipe.title}</Text>
+            {/* Title */}
+            <Text style={styles.recipeTitle} numberOfLines={2}>
+              {recipe.title}
+            </Text>
             
+            {/* Description - THIS WAS MISSING */}
             <Text style={styles.recipeDescription} numberOfLines={2}>
               {recipe.description}
             </Text>
-
-            {/* <View style={styles.recipeMetaRow}>
-              <Text style={styles.recipeMeta}>⏱️ {recipe.prepTime}</Text>
-              <Text style={styles.recipeMeta}>👥 {recipe.servings}</Text>
-              <Text style={styles.recipeMeta}>🏷️ {recipe.cuisine}</Text>
-            </View> */}
-
-            {/* <View style={styles.recipeStats}>
-              <Text style={styles.recipeStat}>❤️ {recipe.likesCount || 0}</Text>
-              <Text style={styles.recipeStat}>🔖 {recipe.savesCount || 0}</Text>
-            </View> */}
           </View>
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* Buttons OUTSIDE TouchableOpacity */}
-      <View style={styles.recipeActionsBottomRight}>
+      {/* Like and Save Buttons - OUTSIDE TouchableOpacity */}
+      <View style={styles.recipeActionsBottomRight} pointerEvents="box-none">
         <TouchableOpacity
           style={[styles.actionButtonNew, isSaved && styles.actionButtonSaved]}
           onPress={handleSave}

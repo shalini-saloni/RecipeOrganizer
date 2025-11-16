@@ -145,6 +145,7 @@ const HomeScreen = ({ user, token }) => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
+            scrollEventThrottle={16}
             keyExtractor={(item) => item._id}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -159,17 +160,18 @@ const HomeScreen = ({ user, token }) => {
             )}
           />
 
-          <View style={styles.pagination}>
-            {recipes.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.paginationDot,
-                  index === currentIndex && styles.paginationDotActive
-                ]}
-              />
-            ))}
-          </View>
+        {/* <View style={styles.pagination}>
+          {recipes.slice(0, 5).map((_, index) => ( // Show max 5 dots
+            <View
+              key={index}
+              style={[
+                styles.paginationDot,
+                index === currentIndex && styles.paginationDotActive
+              ]}
+            />
+          ))}
+        </View> */}
+        
         </>
       ) : (
         <View style={styles.emptyContainer}>

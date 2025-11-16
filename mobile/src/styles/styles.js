@@ -160,113 +160,185 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 
-  // Recipe Card
-  recipeCard: {
-    height: height - 250,
-    backgroundColor: '#000',
-  },
-  recipeImage: {
-    width: '100%',
-    height: '100%',
-  },
-  recipeGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '60%',
-    justifyContent: 'flex-end',
-    padding: 20,
-  },
-  recipeActions: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    flexDirection: 'row',
-    gap: 12,
-  },
-  actionButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 50,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  actionIcon: {
-    fontSize: 24,
-  },
-  recipeInfo: {
-    marginBottom: 20,
-  },
-  recipeUserInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  recipeUserAvatar: {
-    fontSize: 24,
-    marginRight: 8,
-  },
-  recipeUserName: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  recipeTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  recipeDescription: {
-    fontSize: 16,
-    color: '#E5E7EB',
-    marginBottom: 16,
-    lineHeight: 22,
-  },
-  recipeMetaRow: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  recipeMeta: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    marginRight: 16,
-  },
-  recipeStats: {
-    flexDirection: 'row',
-  },
-  recipeStat: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    marginRight: 16,
-  },
+  // Update or add these styles in your styles.js file
 
-  // Pagination
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D1D5DB',
-    marginHorizontal: 4,
-  },
-  paginationDotActive: {
-    width: 24,
-    backgroundColor: '#F97316',
-  },
+recipeCard: {
+  height: Dimensions.get('window').height - 250,
+  backgroundColor: '#000',
+  position: 'relative',
+},
+
+recipeImage: {
+  width: '100%',
+  height: '100%',
+  resizeMode: 'cover',
+},
+
+recipeCardOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+},
+
+recipeGradient: {
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: '50%',
+  justifyContent: 'flex-end',
+  paddingHorizontal: 20,
+  paddingBottom: 100, // Space for bottom nav
+},
+
+recipeInfo: {
+  marginBottom: 10,
+},
+
+recipeUserInfo: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 12,
+},
+
+recipeUserAvatarImage: {
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  marginRight: 10,
+  borderWidth: 2,
+  borderColor: '#FFFFFF',
+},
+
+recipeUserName: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontWeight: '600',
+},
+
+recipeTitle: {
+  fontSize: 26,
+  fontWeight: 'bold',
+  color: '#FFFFFF',
+  marginBottom: 8,
+  lineHeight: 32,
+},
+
+// THIS IS THE KEY STYLE FOR DESCRIPTION
+recipeDescription: {
+  fontSize: 15,
+  color: '#E5E7EB',
+  marginBottom: 14,
+  lineHeight: 22,
+  opacity: 0.95,
+},
+
+recipeMetaRow: {
+  flexDirection: 'row',
+  marginBottom: 10,
+  flexWrap: 'wrap',
+},
+
+recipeMeta: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  marginRight: 16,
+  opacity: 0.9,
+},
+
+recipeStats: {
+  flexDirection: 'row',
+  marginTop: 4,
+},
+
+recipeStat: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  marginRight: 16,
+  fontWeight: '500',
+},
+
+// CRITICAL: These styles make buttons visible
+recipeActionsBottomRight: {
+  position: 'absolute',
+  bottom: 120, // Adjusted to be above bottom nav
+  right: 20,
+  flexDirection: 'column',
+  zIndex: 10,
+  elevation: 10,
+},
+
+actionButtonNew: {
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  borderRadius: 28,
+  width: 56,
+  height: 56,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginBottom: 12,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 8,
+  elevation: 10,
+  borderWidth: 3,
+  borderColor: '#FFFFFF',
+},
+
+actionButtonLiked: {
+  backgroundColor: '#FEE2E2',
+  borderColor: '#EF4444',
+},
+
+actionButtonSaved: {
+  backgroundColor: '#DBEAFE',
+  borderColor: '#3B82F6',
+},
+
+actionIconNew: {
+  fontSize: 28,
+},
+
+// Remove the pagination dots space
+pagination: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingVertical: 12, // Reduced from 16
+  backgroundColor: '#FFFFFF',
+  height: 50, // Fixed height
+},
+
+paginationDot: {
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  backgroundColor: '#D1D5DB',
+  marginHorizontal: 4,
+},
+
+paginationDotActive: {
+  width: 24,
+  backgroundColor: '#F97316',
+},
+
+// Bottom nav adjustment
+bottomNav: {
+  flexDirection: 'row',
+  backgroundColor: '#FFFFFF',
+  borderTopWidth: 1,
+  borderTopColor: '#E5E7EB',
+  paddingBottom: 20,
+  paddingTop: 10, // Reduced from 12
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: -2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 10,
+  height: 80, // Fixed height
+},
 
   // Upload Screen
   uploadContainer: {
