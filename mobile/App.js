@@ -99,10 +99,10 @@ export default function App() {
             onPress={() => setActiveScreen('home')}
           >
             <Text style={[styles.navIcon, activeScreen === 'home' && styles.navIconActive]}>
-              🏠
+              🍽️
             </Text>
             <Text style={[styles.navLabel, activeScreen === 'home' && styles.navLabelActive]}>
-              Home
+              Recipes
             </Text>
           </TouchableOpacity>
 
