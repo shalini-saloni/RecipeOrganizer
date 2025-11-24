@@ -22,11 +22,42 @@ const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token }) 
     await onSave(recipe._id);
   };
 
+  // Fix: Ensure image is a valid URI
+  const getImageUri = () => {
+    if (!recipe.image) {
+      return 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800';
+    }
+    
+    // If it's already a base64 string, use it directly
+    if (recipe.image.startsWith('data:image')) {
+      return recipe.image;
+    }
+    
+    // If it's a URL, use it
+    if (recipe.image.startsWith('http')) {
+      return recipe.image;
+    }
+    
+    // Default fallback
+    return 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800';
+  };
+
+  const formatServings = (servings, servingsMax) => {
+    if (servingsMax && servingsMax !== servings) {
+      return `${servings}-${servingsMax} servings`;
+    }
+    return `${servings} servings`;
+  };
+
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.modalContainer}>
         <ScrollView>
-          <Image source={{ uri: recipe.image }} style={styles.modalImage} />
+          <Image 
+            source={{ uri: getImageUri() }} 
+            style={styles.modalImage}
+            resizeMode="cover"
+          />
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>✕</Text>
@@ -34,11 +65,11 @@ const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token }) 
 
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>{recipe.title}</Text>
                 <View style={styles.userInfo}>
                   <Text style={styles.userAvatar}>
-                    {recipe.userId?.avatar || '👤'}
+                    {recipe.userId?.avatar ? '👤' : '👤'}
                   </Text>
                   <Text style={styles.userName}>
                     {recipe.userId?.name || 'Unknown Chef'}
@@ -71,7 +102,9 @@ const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token }) 
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoIcon}>👥</Text>
-                <Text style={styles.infoText}>{recipe.servings} servings</Text>
+                <Text style={styles.infoText}>
+                  {formatServings(recipe.servings, recipe.servingsMax)}
+                </Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoIcon}>🏷️</Text>

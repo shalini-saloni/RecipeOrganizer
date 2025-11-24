@@ -22,6 +22,7 @@ const UploadScreen = ({ user, token }) => {
   const [ingredients, setIngredients] = useState('');
   const [prepTime, setPrepTime] = useState('');
   const [servings, setServings] = useState('');
+  const [servingsMax, setServingsMax] = useState(''); 
   const [instructions, setInstructions] = useState('');
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ const UploadScreen = ({ user, token }) => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.7,
+        quality: 0.5,
         base64: true,
       });
 
@@ -63,7 +64,7 @@ const UploadScreen = ({ user, token }) => {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.7,
+        quality: 0.5,
         base64: true,
       });
 
@@ -89,12 +90,18 @@ const UploadScreen = ({ user, token }) => {
 
   const handleUpload = async () => {
     if (!title || !description || !cuisine || !ingredients || !prepTime || !servings || !instructions) {
-      Alert.alert('Error', 'Please fill all fields');
+      Alert.alert('Error', 'Please fill all required fields');
       return;
     }
 
     if (isNaN(servings) || parseInt(servings) < 1) {
-      Alert.alert('Error', 'Servings must be a valid number');
+      Alert.alert('Error', 'Minimum servings must be a valid number');
+      return;
+    }
+
+    // Validate servingsMax if provided
+    if (servingsMax && (isNaN(servingsMax) || parseInt(servingsMax) < parseInt(servings))) {
+      Alert.alert('Error', 'Maximum servings must be greater than or equal to minimum servings');
       return;
     }
 
@@ -115,6 +122,7 @@ const UploadScreen = ({ user, token }) => {
         ingredients: ingredients.split(',').map(i => i.trim()).filter(i => i),
         prepTime,
         servings: parseInt(servings),
+        servingsMax: servingsMax ? parseInt(servingsMax) : null, // NEW FIELD
         instructions,
         image: imageUrl
       };
@@ -129,6 +137,7 @@ const UploadScreen = ({ user, token }) => {
       setIngredients('');
       setPrepTime('');
       setServings('');
+      setServingsMax('');
       setInstructions('');
       setImage(null);
     } catch (error) {
@@ -220,16 +229,40 @@ const UploadScreen = ({ user, token }) => {
             editable={!loading}
           />
 
+          {/* NEW SERVINGS SECTION */}
           <Text style={styles.label}>Servings *</Text>
-          <TextInput
-            style={styles.uploadInput}
-            placeholder="e.g., 4"
-            value={servings}
-            onChangeText={setServings}
-            keyboardType="numeric"
-            placeholderTextColor="#9CA3AF"
-            editable={!loading}
-          />
+          <View style={styles.servingsContainer}>
+            <View style={styles.servingsInputWrapper}>
+              <Text style={styles.servingsLabel}>Min</Text>
+              <TextInput
+                style={styles.servingsInput}
+                placeholder="3"
+                value={servings}
+                onChangeText={setServings}
+                keyboardType="numeric"
+                placeholderTextColor="#9CA3AF"
+                editable={!loading}
+              />
+            </View>
+            
+            <Text style={styles.servingsSeparator}>-</Text>
+            
+            <View style={styles.servingsInputWrapper}>
+              <Text style={styles.servingsLabel}>Max (Optional)</Text>
+              <TextInput
+                style={styles.servingsInput}
+                placeholder="4"
+                value={servingsMax}
+                onChangeText={setServingsMax}
+                keyboardType="numeric"
+                placeholderTextColor="#9CA3AF"
+                editable={!loading}
+              />
+            </View>
+          </View>
+          <Text style={styles.servingsHint}>
+            💡 Leave max empty for exact serving (e.g., "4"), or fill both for range (e.g., "3-4")
+          </Text>
 
           <Text style={styles.label}>Instructions *</Text>
           <TextInput

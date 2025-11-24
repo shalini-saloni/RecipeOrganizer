@@ -47,6 +47,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
   const [editRecipeServings, setEditRecipeServings] = useState('');
   const [editRecipeInstructions, setEditRecipeInstructions] = useState('');
   const [editRecipeImage, setEditRecipeImage] = useState(null);
+  const [editRecipeServingsMax, setEditRecipeServingsMax] = useState('');
 
   useEffect(() => {
     loadRecipes();
@@ -191,6 +192,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
     setEditRecipeInstructions(recipe.instructions);
     setEditRecipeImage(null);
     setEditRecipeModalVisible(true);
+    setEditRecipeServingsMax(recipe.servingsMax ? recipe.servingsMax.toString() : '');
   };
 
   const pickRecipeImage = async () => {
@@ -241,6 +243,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         ingredients: editRecipeIngredients.split(',').map(i => i.trim()).filter(i => i),
         prepTime: editRecipePrepTime,
         servings: parseInt(editRecipeServings),
+        servingsMax: editRecipeServingsMax ? parseInt(editRecipeServingsMax) : null,
         instructions: editRecipeInstructions,
         image: imageUrl
       };
@@ -520,14 +523,33 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
             />
 
             <Text style={styles.label}>Servings *</Text>
-            <TextInput
-              style={styles.uploadInput}
-              placeholder="e.g., 4"
-              value={editRecipeServings}
-              onChangeText={setEditRecipeServings}
-              keyboardType="numeric"
-              placeholderTextColor="#9CA3AF"
-            />
+              <View style={styles.servingsContainer}>
+                <View style={styles.servingsInputWrapper}>
+                  <Text style={styles.servingsLabel}>Min</Text>
+                  <TextInput
+                    style={styles.servingsInput}
+                    placeholder="3"
+                    value={editRecipeServings}
+                    onChangeText={setEditRecipeServings}
+                    keyboardType="numeric"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                </View>
+                
+                <Text style={styles.servingsSeparator}>-</Text>
+                
+                <View style={styles.servingsInputWrapper}>
+                  <Text style={styles.servingsLabel}>Max (Optional)</Text>
+                  <TextInput
+                    style={styles.servingsInput}
+                    placeholder="4"
+                    value={editRecipeServingsMax}
+                    onChangeText={setEditRecipeServingsMax}
+                    keyboardType="numeric"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                </View>
+              </View>
 
             <Text style={styles.label}>Instructions *</Text>
             <TextInput

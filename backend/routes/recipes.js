@@ -66,7 +66,8 @@ router.post('/', auth, [
   body('ingredients').isArray({ min: 1 }),
   body('instructions').trim().notEmpty(),
   body('prepTime').trim().notEmpty(),
-  body('servings').isInt({ min: 1 })
+  body('servings').isInt({ min: 1 }),
+  body('servingsMax').optional().isInt({ min: 1 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -100,7 +101,8 @@ router.put('/:id', auth, [
   body('ingredients').isArray({ min: 1 }),
   body('instructions').trim().notEmpty(),
   body('prepTime').trim().notEmpty(),
-  body('servings').isInt({ min: 1 })
+  body('servings').isInt({ min: 1 }),
+  body('servingsMax').optional().isInt({ min: 1 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

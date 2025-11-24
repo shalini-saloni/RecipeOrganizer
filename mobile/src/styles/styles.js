@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
 
 // Recipe Card
 recipeCard: {
-  height: Dimensions.get('window').height - 350,
+  height: Dimensions.get('window').height - 300,
   backgroundColor: '#000',
   position: 'relative',
 },
@@ -231,6 +231,7 @@ recipeDescription: {
   marginBottom: 14,
   lineHeight: 22,
   opacity: 0.95,
+  width: 250,
 },
 
 recipeMetaRow: {
@@ -870,6 +871,51 @@ editModalHeader: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  
+  servingsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+
+  servingsInputWrapper: {
+    flex: 1,
+  },
+
+  servingsLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+
+  servingsInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#1F2937',
+    textAlign: 'center',
+  },
+
+  servingsSeparator: {
+    fontSize: 24,
+    color: '#9CA3AF',
+    fontWeight: 'bold',
+    marginHorizontal: 12,
+    marginTop: 20,
+  },
+
+  servingsHint: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 16,
+    fontStyle: 'italic',
+    lineHeight: 18,
   },
   
 });
