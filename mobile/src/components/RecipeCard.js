@@ -30,7 +30,6 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave }) => {
       {/* Main Image */}
       <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
 
-      {/* Tap to view details overlay */}
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={1}
@@ -65,7 +64,7 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave }) => {
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* Like and Save Buttons - OUTSIDE TouchableOpacity */}
+      {/* Like and Save Buttons */}
       <View style={styles.recipeActionsBottomRight} pointerEvents="box-none">
         <TouchableOpacity
           style={[styles.actionButtonNew, isSaved && styles.actionButtonSaved]}

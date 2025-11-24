@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 // const API_URL = 'http://localhost:3000/api';
-const API_URL = 'http://11.6.2.74:3000/api';
 
 // For real device: const API_URL = 'http://MY_IP:5000/api';
+const API_URL = 'http://11.6.2.74:3000/api';
+
 
 const api = axios.create({
   baseURL: API_URL,

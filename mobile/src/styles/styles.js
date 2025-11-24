@@ -917,6 +917,53 @@ editModalHeader: {
     fontStyle: 'italic',
     lineHeight: 18,
   },
+  modalUserInfo: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 12,
+  paddingVertical: 8,
+},
+
+  modalUserAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: '#F97316',
+  },
+
+  modalUserTextContainer: {
+    flex: 1,
+  },
+
+  modalUserName: {
+    fontSize: 16,
+    color: '#1F2937',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+
+  modalUserBio: {
+    fontSize: 13,
+    color: '#6B7280',
+    fontStyle: 'italic',
+  },
+
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  userAvatar: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+
+  userName: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
   
 });
 

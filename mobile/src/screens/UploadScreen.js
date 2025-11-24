@@ -99,7 +99,6 @@ const UploadScreen = ({ user, token }) => {
       return;
     }
 
-    // Validate servingsMax if provided
     if (servingsMax && (isNaN(servingsMax) || parseInt(servingsMax) < parseInt(servings))) {
       Alert.alert('Error', 'Maximum servings must be greater than or equal to minimum servings');
       return;
@@ -130,7 +129,6 @@ const UploadScreen = ({ user, token }) => {
       await createRecipe(token, recipe);
       Alert.alert('Success', 'Recipe uploaded successfully!');
 
-      // Clear form
       setTitle('');
       setDescription('');
       setCuisine('');
@@ -158,7 +156,6 @@ const UploadScreen = ({ user, token }) => {
         </LinearGradient>
 
         <View style={styles.uploadForm}>
-          {/* Image Upload */}
           <Text style={styles.label}>Recipe Image</Text>
           <TouchableOpacity 
             style={styles.imageUploadContainer} 
@@ -229,7 +226,6 @@ const UploadScreen = ({ user, token }) => {
             editable={!loading}
           />
 
-          {/* NEW SERVINGS SECTION */}
           <Text style={styles.label}>Servings *</Text>
           <View style={styles.servingsContainer}>
             <View style={styles.servingsInputWrapper}>

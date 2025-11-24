@@ -67,7 +67,7 @@ router.post('/', auth, [
   body('instructions').trim().notEmpty(),
   body('prepTime').trim().notEmpty(),
   body('servings').isInt({ min: 1 }),
-  body('servingsMax').optional().isInt({ min: 1 })
+  body('servingsMax').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

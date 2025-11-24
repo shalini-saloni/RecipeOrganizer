@@ -36,7 +36,8 @@ const recipeSchema = new mongoose.Schema({
   },
   servingsMax: {  
     type: Number,
-    default: null  
+    default: null,
+    required: false  
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
