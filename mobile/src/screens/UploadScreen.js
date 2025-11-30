@@ -121,7 +121,7 @@ const UploadScreen = ({ user, token }) => {
         ingredients: ingredients.split(',').map(i => i.trim()).filter(i => i),
         prepTime,
         servings: parseInt(servings),
-        servingsMax: servingsMax ? parseInt(servingsMax) : null, // NEW FIELD
+        servingsMax: servingsMax ? parseInt(servingsMax) : null, 
         instructions,
         image: imageUrl
       };

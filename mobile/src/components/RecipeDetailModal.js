@@ -54,7 +54,11 @@ const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token }) 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.modalContainer}>
-        <ScrollView>
+        <ScrollView 
+          showsVerticalScrollIndicator={true}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
           {/* Recipe Image */}
           <Image 
             source={{ uri: getImageUri(recipe.image) }} 
@@ -70,7 +74,7 @@ const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token }) 
           <View style={styles.modalContent}>
             {/* Header with Title and Actions */}
             <View style={styles.modalHeader}>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, marginRight: 12 }}>
                 <Text style={styles.modalTitle}>{recipe.title}</Text>
                 
                 {/* User Info*/}

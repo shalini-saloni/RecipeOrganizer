@@ -116,7 +116,7 @@ const AuthScreen = ({ onLogin }) => {
 
             <View style={styles.authToggle}>
               <Text style={styles.authToggleText}>
-                {isLogin ? "Don't have an account? " : 'Already have an account? '}
+                {isLogin ? "Don't have an account?" : 'Already have an account?'}
               </Text>
               <TouchableOpacity 
                 onPress={() => setIsLogin(!isLogin)}

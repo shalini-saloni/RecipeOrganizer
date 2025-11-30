@@ -36,6 +36,8 @@ const HomeScreen = ({ user, token }) => {
       const data = await getRecipes(token);
       setRecipes(data);
     } catch (error) {
+      console.log("Recipe Fetch Error:", error.message);
+      console.log(error.response?.data);
       Alert.alert('Error', 'Failed to load recipes');
     } finally {
       setLoading(false);
@@ -58,11 +60,9 @@ const HomeScreen = ({ user, token }) => {
     setCurrentIndex(0);
   };
 
-  // FIXED: Don't reload all recipes, just update state
   const handleLike = async (recipeId) => {
     try {
       await toggleLike(token, recipeId);
-      // Update only the affected recipe
       setRecipes(prevRecipes => 
         prevRecipes.map(recipe => 
           recipe._id === recipeId 
@@ -78,7 +78,6 @@ const HomeScreen = ({ user, token }) => {
   const handleSave = async (recipeId) => {
     try {
       await toggleSave(token, recipeId);
-      // Update only the affected recipe
       setRecipes(prevRecipes => 
         prevRecipes.map(recipe => 
           recipe._id === recipeId 

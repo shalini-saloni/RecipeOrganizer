@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
 
 // Recipe Card
 recipeCard: {
-  height: Dimensions.get('window').height - 300,
+  height: Dimensions.get('window').height - 350,
   backgroundColor: '#000',
   position: 'relative',
 },
@@ -576,6 +576,7 @@ editModalHeader: {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 16,
+    flexWrap: 'wrap',
   },
   modalTitle: {
     fontSize: 26,
@@ -598,6 +599,8 @@ editModalHeader: {
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
   },
   iconButton: {
     backgroundColor: '#F9FAFB',
@@ -617,14 +620,17 @@ editModalHeader: {
     fontSize: 20,
   },
   description: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#4B5563',
     lineHeight: 24,
     marginBottom: 20,
+    flexWrap: 'wrap',
   },
   infoRow: {
     flexDirection: 'row',
     marginBottom: 16,
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
   },
   infoItem: {
     flex: 1,

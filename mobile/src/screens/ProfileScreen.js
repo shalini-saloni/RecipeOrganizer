@@ -9,6 +9,7 @@ import {
   Alert,
   TextInput,
   Modal,
+  SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
@@ -36,7 +37,6 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
   const [editAvatar, setEditAvatar] = useState(user?.avatar || '');
   const [updatingProfile, setUpdatingProfile] = useState(false);
 
-  // Edit Recipe States
   const [editRecipeModalVisible, setEditRecipeModalVisible] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [editRecipeTitle, setEditRecipeTitle] = useState('');
@@ -156,7 +156,6 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
     setEditModalVisible(true);
   };
 
-  // Delete Recipe
   const handleDeleteRecipe = (recipe) => {
     Alert.alert(
       'Delete Recipe',
@@ -180,7 +179,6 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
     );
   };
 
-  // Edit Recipe
   const handleEditRecipe = (recipe) => {
     setEditingRecipe(recipe);
     setEditRecipeTitle(recipe.title);
@@ -377,7 +375,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         animationType="slide"
         onRequestClose={() => setEditModalVisible(false)}
       >
-        <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
           <View style={styles.editModalHeader}>
             <TouchableOpacity onPress={() => setEditModalVisible(false)}>
               <Text style={styles.editModalCancel}>Cancel</Text>
@@ -395,7 +393,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
 
           <ScrollView 
             style={{ flex: 1, padding: 20 }}
-            contentContainerStyle={{ paddingBottom: 60 }}
+            contentContainerStyle={{ paddingBottom: 80 }}
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.editAvatarContainer}>
@@ -431,7 +429,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
               numberOfLines={4}
             />
           </ScrollView>
-        </View>
+        </SafeAreaView>
       </Modal>
 
       {/* Edit Recipe Modal */}
@@ -440,7 +438,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         animationType="slide"
         onRequestClose={() => setEditRecipeModalVisible(false)}
       >
-        <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
           <View style={styles.editModalHeader}>
             <TouchableOpacity onPress={() => setEditRecipeModalVisible(false)}>
               <Text style={styles.editModalCancel}>Cancel</Text>
@@ -453,7 +451,8 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
 
           <ScrollView 
             style={{ flex: 1, padding: 20 }}
-            contentContainerStyle={{ paddingBottom: 60 }}
+            contentContainerStyle={{ paddingBottom: 80 }}
+            showsVerticalScrollIndicator={false}
           >
             {/* Image Upload */}
             <Text style={styles.label}>Recipe Image</Text>
@@ -562,7 +561,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
               placeholderTextColor="#9CA3AF"
             />
           </ScrollView>
-        </View>
+        </SafeAreaView>
       </Modal>
 
       <RecipeDetailModal
