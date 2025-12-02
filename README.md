@@ -3,6 +3,8 @@
 ## 📌 Project Title
 Recipe Organizer - Your Personal Recipe Collection & Discovery Platform
 
+**[Watch the Demo Video](https://drive.google.com/file/d/1hjPjifrie-aFjrC8E3KSiTJAGKjIgz9e/view?usp=sharing)**
+
 ## 👤 Author
 Shalini Saloni – 2024-B-27012005A
 
