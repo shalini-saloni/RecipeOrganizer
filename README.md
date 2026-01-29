@@ -1,14 +1,14 @@
-# 🍳 Recipe Organizer Mobile App
+# Recipe Organizer Mobile App
 
-## 📌 Project Title
+## Project Title
 Recipe Organizer - Your Personal Recipe Collection & Discovery Platform
 
 **[Watch the Demo Video](https://drive.google.com/file/d/1hjPjifrie-aFjrC8E3KSiTJAGKjIgz9e/view?usp=sharing)**
 
-## 👤 Author
+## Author
 Shalini Saloni – 2024-B-27012005A
 
-## 🛠 Problem Statement
+## Problem Statement
 Food enthusiasts, home cooks, and culinary professionals often struggle to organize their recipe collections effectively. Traditional methods like notebooks or scattered digital notes make it difficult to search, categorize, and share recipes. Users need a centralized platform where they can:
 - Store and organize their favorite recipes
 - Discover new recipes from a community
@@ -18,10 +18,10 @@ Food enthusiasts, home cooks, and culinary professionals often struggle to organ
 
 This project aims to create a mobile-first solution that combines personal recipe management with social discovery features, making cooking more accessible and enjoyable.
 
-## 💡 Proposed Solution
+## Proposed Solution
 A cross-platform mobile application built with React Native that allows users to create, browse, save, and share recipes. The app features a swipeable card-based interface for recipe discovery, integrated image upload for visual appeal, and a comprehensive user profile system. Users can upload their own recipes with photos, search through the community recipe database, and maintain organized collections of their favorite dishes.
 
-## ✨ Key Features
+## Key Features
 
 ### User Management
 - **Secure Authentication:** Email/password-based signup and login with JWT tokens
@@ -60,7 +60,7 @@ A cross-platform mobile application built with React Native that allows users to
 - **Bottom Navigation:** Easy access to Home, Upload, and Profile screens
 - **Visual Feedback:** Button animations and color changes on interaction
 
-## 🎯 Target Users
+## Target Users
 - Home cooks looking to organize their recipe collection
 - Food bloggers wanting to share their creations
 - Culinary students building their recipe portfolio
@@ -68,7 +68,7 @@ A cross-platform mobile application built with React Native that allows users to
 - Meal planners searching for new recipe ideas
 - Diet-conscious individuals filtering recipes by ingredients
 
-## 🖥 Technology Stack
+## Technology Stack
 
 ### Mobile Frontend
 - **Framework:** React Native with Expo
@@ -98,7 +98,7 @@ A cross-platform mobile application built with React Native that allows users to
 - **Package Manager:** npm
 - **Environment Variables:** dotenv
 
-## 📈 Expected Outcome
+## Expected Outcome
 A fully functional mobile application that:
 - Provides seamless recipe browsing with **<1 second** card swipe response time
 - Supports **unlimited recipe uploads** per user
@@ -115,20 +115,7 @@ A fully functional mobile application that:
 - App loads saved recipes within 2 seconds
 - Zero crashes during normal usage scenarios
 
-## ⏳ Timeline
-
-| Week | Task | Deliverables |
-|------|------|--------------|
-| 1 | Project setup & architecture planning | Repository structure, database schema, API endpoints design |
-| 2 | Backend development - Auth & User APIs | Working signup/login, JWT authentication, user profile CRUD |
-| 3 | Backend development - Recipe APIs | Recipe CRUD, like/save functionality, search implementation |
-| 4 | Frontend - Authentication screens | Signup/Login UI, form validation, AsyncStorage integration |
-| 5 | Frontend - Home screen & Recipe cards | Swipeable recipe feed, search bar, pagination dots |
-| 6 | Frontend - Upload screen | Recipe form, image picker, image preview, submission |
-| 7 | Frontend - Profile screen | User profile display, three tabs, recipe lists, edit modal |
-| 8 | Testing, debugging & deployment | Bug fixes, performance optimization, deployment to Expo/stores |
-
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 ```bash
@@ -229,7 +216,7 @@ recipe-organizer/
 └── README.md
 ```
 
-## 🔐 API Endpoints
+## API Endpoints
 
 ### Authentication
 | Method | Endpoint | Description | Auth Required |
@@ -256,7 +243,7 @@ recipe-organizer/
 |--------|----------|-------------|---------------|
 | POST | `/api/upload/image` | Upload base64 image | Yes |
 
-## 📱 App Screenshots Flow
+## App Screenshots Flow
 
 ### 1. Authentication
 - **Login Screen:** Email/password fields, toggle to signup
@@ -279,7 +266,7 @@ recipe-organizer/
 - **Recipe Grid:** List of recipes with thumbnails
 - **Edit Modal:** Update profile picture, name, and bio
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Backend won't start
 ```bash
@@ -314,7 +301,7 @@ const API_URL = 'http://YOUR_IP:5000/api';
 expo-image-picker automatically requests permissions
 ```
 
-## 📝 Additional Notes
+## Additional Notes
 
 ### Future Enhancements
 - **Meal Planning:** Weekly meal calendar with recipe assignments
@@ -351,15 +338,4 @@ expo-image-picker automatically requests permissions
 - Lazy loading for recipe images
 - Debounced search to reduce API calls
 
-## 📞 Contact & Support
-For questions, issues, or contributions:
-- **Author:** Shalini Saloni
-- **Email:** shalinisaloni2801@gmail.com
 
-
-## 📄 License
-This project is developed as part of academic coursework at Newton School Of Technology.
-
----
-
-**Made with ❤️ and 🍳 by Shalini Saloni.
