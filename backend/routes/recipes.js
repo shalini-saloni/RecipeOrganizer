@@ -22,6 +22,11 @@ router.get('/', async (req, res) => {
       };
     }
 
+    // Exclude AI-generated recipes from the main public lists (popular/recent)
+    if (!query.category) {
+      query.category = { $ne: 'AI Generated' };
+    }
+
     const recipes = await Recipe.find(query)
       .populate('userId', 'name avatar')
       .sort({ createdAt: -1 });
@@ -29,7 +34,8 @@ router.get('/', async (req, res) => {
     const recipesWithStats = recipes.map(recipe => ({
       ...recipe.toObject(),
       likesCount: recipe.likes.length,
-      savesCount: recipe.saves.length
+      savesCount: recipe.saves.length,
+      image: recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'
     }));
 
     res.json(recipesWithStats);
@@ -43,7 +49,7 @@ router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id)
       .populate('userId', 'name avatar');
-    
+
     if (!recipe) {
       return res.status(404).json({ error: 'Recipe not found' });
     }
@@ -51,7 +57,8 @@ router.get('/:id', async (req, res) => {
     res.json({
       ...recipe.toObject(),
       likesCount: recipe.likes.length,
-      savesCount: recipe.saves.length
+      savesCount: recipe.saves.length,
+      image: recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -63,6 +70,7 @@ router.post('/', auth, [
   body('title').trim().notEmpty(),
   body('description').trim().notEmpty(),
   body('cuisine').trim().notEmpty(),
+  body('category').optional().trim(),
   body('ingredients').isArray({ min: 1 }),
   body('instructions').trim().notEmpty(),
   body('prepTime').trim().notEmpty(),
@@ -98,6 +106,7 @@ router.put('/:id', auth, [
   body('title').trim().notEmpty(),
   body('description').trim().notEmpty(),
   body('cuisine').trim().notEmpty(),
+  body('category').optional().trim(),
   body('ingredients').isArray({ min: 1 }),
   body('instructions').trim().notEmpty(),
   body('prepTime').trim().notEmpty(),
@@ -111,7 +120,7 @@ router.put('/:id', auth, [
     }
 
     const recipe = await Recipe.findById(req.params.id);
-    
+
     if (!recipe) {
       return res.status(404).json({ error: 'Recipe not found' });
     }
@@ -140,7 +149,7 @@ router.put('/:id', auth, [
 router.delete('/:id', auth, async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
-    
+
     if (!recipe) {
       return res.status(404).json({ error: 'Recipe not found' });
     }
@@ -151,7 +160,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     await Recipe.findByIdAndDelete(req.params.id);
-    
+
     res.json({ message: 'Recipe deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -162,13 +171,13 @@ router.delete('/:id', auth, async (req, res) => {
 router.post('/:id/like', auth, async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
-    
+
     if (!recipe) {
       return res.status(404).json({ error: 'Recipe not found' });
     }
 
     const likeIndex = recipe.likes.indexOf(req.userId);
-    
+
     if (likeIndex > -1) {
       recipe.likes.splice(likeIndex, 1);
     } else {
@@ -176,7 +185,7 @@ router.post('/:id/like', auth, async (req, res) => {
     }
 
     await recipe.save();
-    
+
     res.json({
       liked: likeIndex === -1,
       likesCount: recipe.likes.length
@@ -190,13 +199,13 @@ router.post('/:id/like', auth, async (req, res) => {
 router.post('/:id/save', auth, async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
-    
+
     if (!recipe) {
       return res.status(404).json({ error: 'Recipe not found' });
     }
 
     const saveIndex = recipe.saves.indexOf(req.userId);
-    
+
     if (saveIndex > -1) {
       recipe.saves.splice(saveIndex, 1);
     } else {
@@ -204,7 +213,7 @@ router.post('/:id/save', auth, async (req, res) => {
     }
 
     await recipe.save();
-    
+
     res.json({
       saved: saveIndex === -1,
       savesCount: recipe.saves.length
@@ -217,7 +226,11 @@ router.post('/:id/save', auth, async (req, res) => {
 // Get user's recipes
 router.get('/user/uploaded', auth, async (req, res) => {
   try {
-    const recipes = await Recipe.find({ userId: req.userId })
+    // Exclude AI-generated recipes from the user uploaded list
+    const recipes = await Recipe.find({
+      userId: req.userId,
+      category: { $ne: 'AI Generated' }
+    })
       .populate('userId', 'name avatar')
       .sort({ createdAt: -1 });
 
