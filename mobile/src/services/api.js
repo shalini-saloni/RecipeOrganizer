@@ -2,8 +2,9 @@ import axios from 'axios';
 
 // const API_URL = 'http://localhost:3000/api';
 
-// For real device: const API_URL = 'http://MY_IP:5000/api';
-const API_URL = 'http://11.6.2.74:3000/api';
+// For real device: const API_URL = 'http://YOUR_LOCAL_IP:3000/api';
+// Using local IP for device connection
+const API_URL = 'http://20.20.17.8:3000/api';
 
 
 const api = axios.create({
@@ -33,9 +34,9 @@ export const updateProfile = async (token, profileData) => {
 
 // Upload API
 export const uploadImage = async (token, imageBase64) => {
-  const response = await api.post('/upload/image', 
+  const response = await api.post('/upload/image',
     { image: imageBase64 },
-    { headers: { Authorization: `Bearer ${token}` }}
+    { headers: { Authorization: `Bearer ${token}` } }
   );
   return response.data;
 };
@@ -107,6 +108,14 @@ export const deleteRecipe = async (token, recipeId) => {
 
 export const updateRecipe = async (token, recipeId, recipeData) => {
   const response = await api.put(`/recipes/${recipeId}`, recipeData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+// AI API
+export const generateAiRecipe = async (token, ingredients) => {
+  const response = await api.post('/ai/generate', { ingredients }, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return response.data;
