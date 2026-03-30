@@ -1,92 +1,94 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import styles from '../styles/styles';
 
 const { width } = Dimensions.get('window');
 
-const RecipeCard = ({ recipe, onPress, onLike, onSave }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    onLike(recipe._id);
-  };
-
-  const handleSave = () => {
-    setIsSaved(!isSaved);
-    onSave(recipe._id);
-  };
+const RecipeCard = ({ recipe, onPress, onLike, onSave, currentUser, isVertical }) => {
+  // Use exact 'liked' boolean from latest response, or check if current user is in the likes array
+  const currentUserId = currentUser?.id || currentUser?._id;
+  
+  const isLiked = recipe.liked !== undefined 
+    ? recipe.liked 
+    : (recipe.likes && currentUserId && recipe.likes.includes(currentUserId));
+    
+  const isSaved = recipe.saved !== undefined 
+    ? recipe.saved 
+    : (recipe.saves && currentUserId && recipe.saves.includes(currentUserId));
 
   return (
-    <View style={[styles.recipeCard, { width }]}>
-      {/* Main Image */}
-      <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-
-      <TouchableOpacity
-        onPress={onPress}
-        activeOpacity={1}
-        style={styles.recipeCardOverlay}
-      >
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.85)']}
-          style={styles.recipeGradient}
-        >
-          <View style={styles.recipeInfo}>
-            {/* User Info */}
-            <View style={styles.recipeUserInfo}>
-              <Image 
-                source={{ uri: recipe.userId?.avatar || 'https://ui-avatars.com/api/?name=User&background=F97316&color=fff' }} 
-                style={styles.recipeUserAvatarImage}
-              />
-              <Text style={styles.recipeUserName}>
-                {recipe.userId?.name || 'Unknown'}
-              </Text>
-            </View>
-
-            {/* Title */}
-            <Text style={styles.recipeTitle} numberOfLines={2}>
-              {recipe.title}
-            </Text>
-            
-            {/* Description */}
-            <Text style={styles.recipeDescription} numberOfLines={4}>
-              {recipe.description}
-            </Text>
-          </View>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      {/* Like and Save Buttons */}
-      <View style={styles.recipeActionsBottomRight} pointerEvents="box-none">
-        <TouchableOpacity
-          style={[styles.actionButtonNew, isSaved && styles.actionButtonSaved]}
-          onPress={handleSave}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.actionIconNew}>
-            {isSaved ? '🔖' : '📑'}
-          </Text>
-        </TouchableOpacity>
+    <TouchableOpacity
+      style={[
+        styles.premiumRecipeCard, 
+        isVertical && { width: '100%', marginRight: 0 }
+      ]}
+      onPress={onPress}
+      activeOpacity={0.9}
+    >
+      <View style={styles.premiumImageContainer}>
+        <Image
+          source={{ uri: recipe.image }}
+          style={styles.premiumRecipeImage}
+          resizeMode="cover"
+        />
         
-        <TouchableOpacity
-          style={[styles.actionButtonNew, isLiked && styles.actionButtonLiked]}
-          onPress={handleLike}
+        {/* Time Pill */}
+        <View style={styles.timePill}>
+          <Feather name="clock" size={12} color="#F97316" />
+          <Text style={styles.timePillText}>{recipe.prepTime}</Text>
+        </View>
+
+        {/* Like Button */}
+        <TouchableOpacity 
+          style={styles.heartButtonOverlay}
+          onPress={() => onLike(recipe._id)}
           activeOpacity={0.7}
         >
-          <Text style={styles.actionIconNew}>
-            {isLiked ? '❤️' : '🤍'}
-          </Text>
+          <Ionicons 
+            name={isLiked ? "heart" : "heart-outline"} 
+            size={18} 
+            color={isLiked ? "#EF4444" : "#6B7280"} 
+          />
         </TouchableOpacity>
       </View>
-    </View>
+
+      <View style={styles.premiumInfoContainer}>
+        <View style={styles.titleRatingRow}>
+          <Text style={styles.premiumRecipeTitle} numberOfLines={1}>
+            {recipe.title}
+          </Text>
+          <View style={styles.ratingBadge}>
+            <Ionicons name="star" size={10} color="#EA580C" />
+            <Text style={styles.ratingText}>{recipe.rating || '4.8'}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.premiumRecipeDesc} numberOfLines={2}>
+          {recipe.description}
+        </Text>
+
+        <View style={styles.premiumAuthorRow}>
+          <Image
+            source={{ uri: recipe.userId?.avatar || 'https://ui-avatars.com/api/?name=User&background=F97316&color=fff' }}
+            style={styles.premiumAuthorAvatar}
+          />
+          <Text style={styles.premiumAuthorName}>
+            {recipe.userId?.name?.split(' ')[0] || 'Chef'}
+          </Text>
+          
+          <View style={{ flex: 1 }} />
+          
+          <TouchableOpacity onPress={() => onSave(recipe._id)}>
+             <Ionicons 
+                name={isSaved ? "bookmark" : "bookmark-outline"} 
+                size={16} 
+                color={isSaved ? "#F97316" : "#6B7280"} 
+             />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
