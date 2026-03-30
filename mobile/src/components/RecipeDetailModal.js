@@ -6,158 +6,124 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
+  Dimensions,
+  Platform,
 } from 'react-native';
-import { toggleLike, toggleSave } from '../services/api';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import styles from '../styles/styles';
 
-const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token }) => {
+const { width, height } = Dimensions.get('window');
+
+const RecipeDetailModal = ({ visible, recipe, onClose, onLike, onSave, token, currentUser }) => {
   if (!recipe) return null;
 
-  const handleLike = async () => {
-    await onLike(recipe._id);
-  };
-
-  const handleSave = async () => {
-    await onSave(recipe._id);
-  };
-
-  const formatServings = (servings, servingsMax) => {
-    if (servingsMax && servingsMax !== servings) {
-      return `${servings}-${servingsMax} servings`;
-    }
-    return `${servings} servings`;
-  };
-
-  const getImageUri = (imageUrl) => {
-    if (!imageUrl) {
-      return 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800';
-    }
+  const currentUserId = currentUser?.id || currentUser?._id;
+  
+  const isLiked = recipe.liked !== undefined 
+    ? recipe.liked 
+    : (recipe.likes && currentUserId && recipe.likes.includes(currentUserId));
     
-    if (imageUrl.startsWith('data:image') || imageUrl.startsWith('http')) {
-      return imageUrl;
-    }
-    
-    return 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800';
-  };
-
-  const getUserAvatar = () => {
-    if (recipe.userId?.avatar) {
-      if (recipe.userId.avatar.startsWith('http') || recipe.userId.avatar.startsWith('data:image')) {
-        return recipe.userId.avatar;
-      }
-    }
-    const userName = recipe.userId?.name || 'User';
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=F97316&color=fff&size=200`;
-  };
+  const isSaved = recipe.saved !== undefined 
+    ? recipe.saved 
+    : (recipe.saves && currentUserId && recipe.saves.includes(currentUserId));
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.modalContainer}>
-        <ScrollView 
-          showsVerticalScrollIndicator={true}
-          scrollEventThrottle={16}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        >
-          {/* Recipe Image */}
-          <Image 
-            source={{ uri: getImageUri(recipe.image) }} 
-            style={styles.modalImage}
-            resizeMode="cover"
-          />
+    <Modal
+      animationType="slide"
+      transparent={false}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        {/* Transparent Header Over Image */}
+        <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, left: 20, right: 20, zIndex: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <TouchableOpacity onPress={onClose} style={[styles.iconButton, { backgroundColor: 'rgba(255, 255, 255, 0.9)', borderWidth: 0 }]}>
+                <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            </TouchableOpacity>
+        </View>
 
-          {/* Close Button */}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>✕</Text>
-          </TouchableOpacity>
-
-          <View style={styles.modalContent}>
-            {/* Header with Title and Actions */}
+        <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+          <View style={{ height: 400, position: 'relative' }}>
+             <Image source={{ uri: recipe.image }} style={{ width: '100%', height: '100%' }} />
+             <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.4)']}
+                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100 }}
+             />
+          </View>
+          
+          <View style={[styles.modalContent, { marginTop: -40 }]}>
             <View style={styles.modalHeader}>
-              <View style={{ flex: 1, marginRight: 12 }}>
-                <Text style={styles.modalTitle}>{recipe.title}</Text>
-                
-                {/* User Info*/}
-                <View style={styles.modalUserInfo}>
-                  <Image 
-                    source={{ uri: getUserAvatar() }}
-                    style={styles.modalUserAvatar}
-                  />
-                  <View style={styles.modalUserTextContainer}>
-                    <Text style={styles.modalUserName}>
-                      {recipe.userId?.name || 'Unknown Chef'}
-                    </Text>
-                    {recipe.userId?.bio && (
-                      <Text style={styles.modalUserBio} numberOfLines={1}>
-                        {recipe.userId.bio}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              </View>
-
-              {/* Action Buttons */}
+              <Text style={styles.modalTitle}>{recipe.title}</Text>
               <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={handleSave}
+                <TouchableOpacity 
+                   style={[styles.iconButton, isLiked && styles.iconButtonActive]} 
+                   onPress={() => onLike(recipe._id)}
                 >
-                  <Text style={styles.iconButtonText}>🔖</Text>
+                  <Ionicons 
+                    name={isLiked ? "heart" : "heart-outline"} 
+                    size={24} 
+                    color={isLiked ? "#EF4444" : "#1F2937"} 
+                  />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={handleLike}
+                <TouchableOpacity 
+                   style={[styles.iconButton, isSaved && styles.iconButtonActive]} 
+                   onPress={() => onSave(recipe._id)}
                 >
-                  <Text style={styles.iconButtonText}>❤️</Text>
+                  <Ionicons 
+                    name={isSaved ? "bookmark" : "bookmark-outline"} 
+                    size={24} 
+                    color={isSaved ? "#F97316" : "#1F2937"} 
+                  />
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Description */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+                <Image source={{ uri: recipe.userId?.avatar || 'https://ui-avatars.com/api/?name=User&background=F97316&color=fff' }} style={{ width: 44, height: 44, borderRadius: 22, marginRight: 12 }} />
+                <View>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1F2937' }}>{recipe.userId?.name || 'Chef'}</Text>
+                    <Text style={{ fontSize: 13, color: '#6B7280' }}>Recipe Creator</Text>
+                </View>
+            </View>
+
             <Text style={styles.description}>{recipe.description}</Text>
 
-            {/* Recipe Info Row */}
             <View style={styles.infoRow}>
               <View style={styles.infoItem}>
-                <Text style={styles.infoIcon}>⏱️</Text>
+                <Feather name="clock" size={24} color="#F97316" />
                 <Text style={styles.infoText}>{recipe.prepTime}</Text>
               </View>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoIcon}>👥</Text>
+              <View style={[styles.infoItem, { borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#D1D5DB', paddingHorizontal: 24 }]}>
+                <Ionicons name="restaurant-outline" size={24} color="#F97316" />
                 <Text style={styles.infoText}>
-                  {formatServings(recipe.servings, recipe.servingsMax)}
+                  {recipe.servings}{recipe.servingsMax ? `-${recipe.servingsMax}` : ''} Serv.
                 </Text>
               </View>
               <View style={styles.infoItem}>
-                <Text style={styles.infoIcon}>🏷️</Text>
-                <Text style={styles.infoText}>{recipe.cuisine}</Text>
+                <MaterialCommunityIcons name="silverware-variant" size={24} color="#F97316" />
+                <Text style={styles.infoText}>{recipe.cuisine || 'All'}</Text>
               </View>
             </View>
 
-            {/* Stats Row */}
-            <View style={styles.statsRow}>
-              <Text style={styles.statText}>❤️ {recipe.likesCount || 0} likes</Text>
-              <Text style={styles.statText}>🔖 {recipe.savesCount || 0} saves</Text>
-            </View>
+            <Text style={styles.sectionTitle}>Ingredients</Text>
+            {recipe.ingredients && recipe.ingredients.map((ingredient, index) => (
+              <View key={index} style={styles.ingredientItem}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#F97316', marginRight: 12 }} />
+                <Text style={styles.ingredientText}>{ingredient}</Text>
+              </View>
+            ))}
 
-            {/* Ingredients Section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Ingredients</Text>
-              {recipe.ingredients?.map((ingredient, index) => (
-                <Text key={index} style={styles.ingredientItem}>
-                  • {ingredient}
-                </Text>
-              ))}
-            </View>
-
-            {/* Instructions Section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Instructions</Text>
-              <Text style={styles.instructions}>{recipe.instructions}</Text>
-            </View>
+            <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Cooking Steps</Text>
+            <Text style={styles.instructions}>{recipe.instructions}</Text>
+            
+            <TouchableOpacity style={[styles.authButton, { marginBottom: 60 }]}>
+                 <Text style={styles.authButtonText}>Cook it Now!</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };
