@@ -18,6 +18,18 @@ const recipeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  category: {
+    type: String,
+    default: 'All'
+  },
+  rating: {
+    type: Number,
+    default: 4.5
+  },
+  reviewsCount: {
+    type: Number,
+    default: 0
+  },
   ingredients: [{
     type: String,
     required: true
@@ -34,10 +46,10 @@ const recipeSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  servingsMax: {  
+  servingsMax: {
     type: Number,
     default: null,
-    required: false  
+    required: false
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
