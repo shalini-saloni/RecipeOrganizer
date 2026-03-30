@@ -8,8 +8,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { login, signup } from '../services/api';
 import styles from '../styles/styles';
 
@@ -23,27 +25,31 @@ const AuthScreen = ({ onLogin }) => {
   const handleSubmit = async () => {
     if (loading) return;
 
+    if (isLogin) {
+      if (!email || !password) {
+        Alert.alert('Error', 'Please fill in all fields');
+        return;
+      }
+    } else {
+      if (!name || !email || !password) {
+        Alert.alert('Error', 'Please fill in all fields');
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
       if (isLogin) {
-        if (!email || !password) {
-          Alert.alert('Error', 'Please fill in all fields');
-          return;
-        }
         const result = await login(email, password);
         onLogin(result.user, result.token);
       } else {
-        if (!name || !email || !password) {
-          Alert.alert('Error', 'Please fill in all fields');
-          return;
-        }
         const result = await signup(name, email, password);
         onLogin(result.user, result.token);
       }
     } catch (error) {
       Alert.alert(
-        'Error',
+        'Authentication Failed',
         error.response?.data?.error || 'An error occurred. Please try again.'
       );
     } finally {
@@ -57,73 +63,82 @@ const AuthScreen = ({ onLogin }) => {
       style={styles.flex1}
     >
       <LinearGradient colors={['#FFF7ED', '#FEE2E2']} style={styles.authContainer}>
-        <ScrollView contentContainerStyle={styles.authScrollContent}>
+        <ScrollView contentContainerStyle={styles.authScrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.authCard}>
             <View style={styles.authIconContainer}>
-              <LinearGradient colors={['#F97316', '#EF4444']} style={styles.authIcon}>
-                <Text style={styles.authIconText}>👨‍🍳</Text>
-              </LinearGradient>
+              <View style={styles.authIcon}>
+                <MaterialCommunityIcons name="chef-hat" size={40} color="#F97316" />
+              </View>
             </View>
 
             <Text style={styles.authTitle}>Recipe Organizer</Text>
             <Text style={styles.authSubtitle}>
-              {isLogin ? 'Welcome back!' : 'Create your account'}
+              {isLogin ? 'Sign in to access your culinary world' : 'Join our community of chefs'}
             </Text>
 
             {!isLogin && (
-              <TextInput
-                style={styles.input}
-                placeholder="Full Name"
-                value={name}
-                onChangeText={setName}
-                placeholderTextColor="#9CA3AF"
-                editable={!loading}
-              />
+              <View style={{ marginBottom: 16 }}>
+                 <TextInput
+                    style={styles.input}
+                    placeholder="Full Name"
+                    value={name}
+                    onChangeText={setName}
+                    placeholderTextColor="#9CA3AF"
+                    editable={!loading}
+                />
+              </View>
             )}
 
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#9CA3AF"
-              editable={!loading}
-            />
+            <View style={{ marginBottom: 16 }}>
+                <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#9CA3AF"
+                editable={!loading}
+                />
+            </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholderTextColor="#9CA3AF"
-              editable={!loading}
-            />
+            <View style={{ marginBottom: 24 }}>
+                <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#9CA3AF"
+                editable={!loading}
+                />
+            </View>
 
             <TouchableOpacity 
-              onPress={handleSubmit} 
+              onPress={() => handleSubmit()} 
               activeOpacity={0.8}
               disabled={loading}
+              style={styles.authButton}
             >
-              <LinearGradient colors={['#F97316', '#EF4444']} style={styles.authButton}>
-                <Text style={styles.authButtonText}>
-                  {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Sign Up')}
-                </Text>
-              </LinearGradient>
+                {loading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                    <Text style={styles.authButtonText}>
+                      {isLogin ? 'Log In' : 'Create Account'}
+                    </Text>
+                )}
             </TouchableOpacity>
 
             <View style={styles.authToggle}>
               <Text style={styles.authToggleText}>
-                {isLogin ? "Don't have an account?" : 'Already have an account?'}
+                {isLogin ? "Don't have an account?" : 'Already a member?'}
               </Text>
               <TouchableOpacity 
                 onPress={() => setIsLogin(!isLogin)}
                 disabled={loading}
               >
                 <Text style={styles.authToggleButton}>
-                  {isLogin ? 'Sign Up' : 'Login'}
+                  {isLogin ? 'Register Now' : 'Log In'}
                 </Text>
               </TouchableOpacity>
             </View>
