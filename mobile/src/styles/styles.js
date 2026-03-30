@@ -1,29 +1,46 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
+const COLORS = {
+  primary: '#F97316',    // Vibrant Orange
+  primaryDark: '#EA580C',
+  primaryLight: '#FFEDD5',
+  secondary: '#8B5CF6',  // Modern Purple
+  accent: '#10B981',    // Emerald Green
+  background: '#FFFFFF', // Clean White
+  surface: '#FFFFFF',
+  textMain: '#111827',
+  textSecondary: '#4B5563',
+  textMuted: '#9CA3AF',
+  border: '#F3F4F6',
+  error: '#EF4444',
+  success: '#10B981',
+  warning: '#F59E0B',
+};
+
 const styles = StyleSheet.create({
-  // Common
-  flex1: {
-    flex: 1,
-  },
+  // Common Utilities
+  flex1: { flex: 1 },
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background,
   },
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.surface,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background,
   },
   loadingText: {
+    marginTop: 12,
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.textSecondary,
+    fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
@@ -33,542 +50,622 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  emptyTextInline: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
 
-  // Header
-  header: {
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-
-  // Auth Screen
+  // Auth Screens
   authContainer: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: COLORS.surface,
   },
   authScrollContent: {
     flexGrow: 1,
+    padding: 24,
     justifyContent: 'center',
   },
   authCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    backgroundColor: COLORS.surface,
+    borderRadius: 32,
     padding: 32,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.1,
-    shadowRadius: 20,
+    shadowRadius: 30,
     elevation: 10,
   },
   authIconContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   authIcon: {
     width: 80,
     height: 80,
     borderRadius: 40,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  authIconText: {
-    fontSize: 40,
-  },
   authTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     textAlign: 'center',
-    color: '#F97316',
+    color: COLORS.textMain,
     marginBottom: 8,
+    letterSpacing: -0.5,
   },
   authSubtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#6B7280',
-    marginBottom: 32,
+    color: COLORS.textSecondary,
+    marginBottom: 40,
+    lineHeight: 24,
   },
   input: {
     backgroundColor: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     fontSize: 16,
     marginBottom: 16,
-    color: '#1F2937',
+    color: COLORS.textMain,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   authButton: {
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: COLORS.primary,
+    borderRadius: 16,
+    padding: 18,
     alignItems: 'center',
-    marginBottom: 16,
+    marginTop: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   authButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.surface,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   authToggle: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 32,
   },
   authToggleText: {
-    color: '#6B7280',
-    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontSize: 15,
   },
   authToggleButton: {
-    color: '#F97316',
-    fontSize: 14,
-    fontWeight: '600',
+    color: COLORS.primary,
+    fontSize: 15,
+    fontWeight: '700',
+    marginLeft: 4,
   },
 
-  // Search
-  searchContainer: {
-    padding: 16,
-    backgroundColor: '#FFFFFF',
+  // Home Screen & Headers
+  homeContainer: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
   },
-  searchBox: {
+  homeScrollContent: {
+    paddingBottom: 150,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 12 : 30,
+    paddingBottom: 16,
+    borderBottomWidth: 1, // Proper border below header area
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primaryLight,
+  },
+  greetingSubText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  greetingName: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.textMain,
+  },
+  menuButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F9FAFB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  heroTextContainer: {
+    paddingHorizontal: 20,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  heroText: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: COLORS.textMain,
+    letterSpacing: -0.5,
+  },
+  heroSubText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  modernSearchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F9FAFB',
-    borderRadius: 12,
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    height: 52,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
-  searchIcon: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  searchInput: {
+  modernSearchInput: {
     flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
+    fontSize: 15,
+    color: COLORS.textMain,
+    marginLeft: 10,
+    fontWeight: '500',
   },
-  clearIcon: {
-    fontSize: 18,
+
+  // Section Headers
+  sectionHeaderLine: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  sectionTitleBlack: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: COLORS.textMain,
+    letterSpacing: -0.5,
+  },
+  seeAllText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+
+  // Premium Recipe Card (Horizontal)
+  premiumRecipeCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 24,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    elevation: 8,
+    marginBottom: 20,
+    marginRight: 16,
+    width: width * 0.7, // Consistent width
+    borderWidth: 1,
+    borderColor: '#F9FAFB',
+  },
+  premiumImageContainer: {
+    height: 180, // Consistent height
+    width: '100%',
+    borderRadius: 18,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: '#F3F4F6',
+  },
+  premiumRecipeImage: {
+    width: '100%',
+    height: '100%',
+  },
+  timePill: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  timePillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textMain,
+    marginLeft: 4,
+  },
+  heartButtonOverlay: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  premiumInfoContainer: {
+    padding: 12,
+  },
+  titleRatingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  premiumRecipeTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: COLORS.textMain,
+    flex: 1,
+    marginRight: 8,
+  },
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  ratingText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#EA580C',
+    marginLeft: 2,
+  },
+  premiumRecipeDesc: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  premiumAuthorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  premiumAuthorAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  premiumAuthorName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+
+  // Category Pills
+  pillContainer: {
+    marginVertical: 12,
+    paddingLeft: 20,
+  },
+  pill: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: '#F9FAFB',
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  pillActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  pillText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
+  pillTextActive: {
+    color: COLORS.surface,
+  },
+
+  // Bottom Navigation
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 24,
+    left: 20,
+    right: 20,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.surface, // Clean White
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  navButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  navButtonCenter: {
+    marginTop: -40,
+  },
+  aiChefButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 4,
+    borderColor: COLORS.surface, // Clean white border instead of black
+  },
+  navLabel: {
+    fontSize: 11,
+    fontWeight: '700',
     color: '#9CA3AF',
-    padding: 4,
+    marginTop: 4,
   },
-
-// Recipe Card
-recipeCard: {
-  height: Dimensions.get('window').height - 350,
-  backgroundColor: '#000',
-  position: 'relative',
-},
-
-recipeImage: {
-  width: '100%',
-  height: '100%',
-  resizeMode: 'cover',
-},
-
-recipeCardOverlay: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-},
-
-recipeGradient: {
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  height: '50%',
-  justifyContent: 'flex-end',
-  paddingHorizontal: 20,
-  paddingBottom: 20,
-},
-
-recipeInfo: {
-  marginBottom: 10,
-},
-
-recipeUserInfo: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginBottom: 10,
-},
-
-recipeUserAvatarImage: {
-  width: 36,
-  height: 36,
-  borderRadius: 18,
-  marginRight: 10,
-  borderWidth: 2,
-  borderColor: '#FFFFFF',
-},
-
-recipeUserName: {
-  color: '#FFFFFF',
-  fontSize: 20,
-  fontWeight: '600',
-},
-
-recipeTitle: {
-  fontSize: 26,
-  fontWeight: 'bold',
-  color: '#FFFFFF',
-  marginBottom: 8,
-  lineHeight: 32,
-},
-
-recipeDescription: {
-  fontSize: 15,
-  color: '#E5E7EB',
-  marginBottom: 14,
-  lineHeight: 22,
-  opacity: 0.95,
-  width: 250,
-},
-
-recipeMetaRow: {
-  flexDirection: 'row',
-  marginBottom: 10,
-  flexWrap: 'wrap',
-},
-
-recipeMeta: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  marginRight: 16,
-  opacity: 0.9,
-},
-
-recipeStats: {
-  flexDirection: 'row',
-  marginTop: 4,
-},
-
-recipeStat: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  marginRight: 16,
-  fontWeight: '500',
-},
-
-recipeActionsBottomRight: {
-  position: 'absolute',
-  bottom: 120, 
-  right: 20,
-  flexDirection: 'column',
-  zIndex: 10,
-  elevation: 10,
-},
-
-actionButtonNew: {
-  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-  borderRadius: 28,
-  width: 56,
-  height: 56,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: 12,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.3,
-  shadowRadius: 8,
-  elevation: 10,
-  borderWidth: 3,
-  borderColor: '#FFFFFF',
-},
-
-actionButtonLiked: {
-  backgroundColor: '#FEE2E2',
-  borderColor: '#EF4444',
-},
-
-actionButtonSaved: {
-  backgroundColor: '#DBEAFE',
-  borderColor: '#3B82F6',
-},
-
-actionIconNew: {
-  fontSize: 28,
-},
-
-// Pagination Dots
-pagination: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#FFFFFF',
-  height: 20, 
-},
-
-paginationDot: {
-  width: 8,
-  height: 8,
-  borderRadius: 4,
-  backgroundColor: '#D1D5DB',
-  marginHorizontal: 4,
-},
-
-paginationDotActive: {
-  width: 24,
-  backgroundColor: '#F97316',
-},
-
-// Bottom nav adjustment
-bottomNav: {
-  flexDirection: 'row',
-  backgroundColor: '#FFFFFF',
-  borderTopWidth: 1,
-  borderTopColor: '#E5E7EB',
-  paddingBottom: 20,
-  paddingTop: 10, // Reduced from 12
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: -2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 10,
-  height: 80, 
-},
+  navLabelActive: {
+    color: COLORS.primary,
+  },
 
   // Upload Screen
   uploadContainer: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.surface,
   },
   uploadForm: {
     padding: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.textMain,
     marginBottom: 8,
-    marginTop: 8,
+    marginTop: 16,
   },
   uploadInput: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 14,
     padding: 16,
-    fontSize: 16,
-    color: '#1F2937',
+    fontSize: 15,
+    color: COLORS.textMain,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
   },
   textAreaLarge: {
-    height: 150,
+    height: 180,
     textAlignVertical: 'top',
   },
-  uploadButton: {
-    borderRadius: 12,
-    padding: 16,
+  imageUploadContainer: {
+    width: '100%',
+    height: 200,
+    borderRadius: 20,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 2,
+    borderColor: '#F3F4F6',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 40,
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  uploadedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageUploadText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginTop: 8,
+  },
+  uploadButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 16,
+    padding: 18,
+    alignItems: 'center',
+    marginTop: 28,
+    marginBottom: 60,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
   },
   uploadButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    color: COLORS.surface,
+    fontSize: 16,
+    fontWeight: '800',
   },
 
   // Profile Screen
   profileHeader: {
-    paddingTop: 40,
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    paddingTop: 8,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   profileInfo: {
     alignItems: 'center',
+    marginTop: 8,
   },
-  profileAvatar: {
-    fontSize: 60,
-    marginBottom: 16,
+  profileAvatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: COLORS.primaryLight,
+    marginBottom: 12,
   },
   profileName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 4,
+    fontSize: 22,
+    fontWeight: '800',
+    color: COLORS.textMain,
+    marginBottom: 2,
   },
   profileEmail: {
     fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.9,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  profileBio: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: 10,
+    paddingHorizontal: 32,
+    lineHeight: 20,
+  },
+  editProfileButtonSmall: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: COLORS.primaryLight,
   },
 
-  // Tabs
+  // Profile Tabs
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    marginBottom: 0,
+    paddingHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+    backgroundColor: 'transparent', // Ensure no background
   },
   tab: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 10,
     alignItems: 'center',
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
   tabActive: {
-    borderBottomColor: '#F97316',
+    borderBottomColor: COLORS.primary,
   },
   tabText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#9CA3AF',
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.textMuted,
   },
   tabTextActive: {
-    color: '#F97316',
-    fontWeight: '600',
+    color: COLORS.primary,
   },
 
-  // Recipe List
-  recipeList: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
+  // Recipe List Items (Vertical)
   recipeListItem: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    height: 100,
   },
   recipeListImage: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
   },
   recipeListInfo: {
     flex: 1,
     padding: 12,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   recipeListTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
+    fontWeight: '800',
+    color: COLORS.textMain,
+    marginBottom: 2,
   },
   recipeListMeta: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 8,
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginBottom: 6,
+    fontWeight: '500',
   },
   recipeListStats: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  recipeListStat: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    marginRight: 12,
-  },
-  
-  recipeListItemTouchable: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-
   recipeListActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 8,
+    paddingRight: 10,
+    gap: 6,
   },
-
   recipeActionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: '#F9FAFB',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
-
   deleteButton: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FFE4E6',
   },
 
-  recipeActionIcon: {
-    fontSize: 18,
-  },
-
-  // Logout Button
-  logoutButton: {
-    backgroundColor: '#EF4444',
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  logoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  // Modal
+  // Modal Details
   modalContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  modalImage: {
-    width: '100%',
-    height: 300,
-  },
-  editModalContent: {
-  flex: 1,
-  padding: 20,
-  backgroundColor: '#F9FAFB',
-},
-
-editModalHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-  paddingVertical: 16,
-  backgroundColor: '#FFFFFF',
-  borderBottomWidth: 1,
-  borderBottomColor: '#E5E7EB',
-  zIndex: 10,
-},
-  closeButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
+    backgroundColor: COLORS.surface,
   },
   modalContent: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    marginTop: -24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 20,
   },
   modalHeader: {
@@ -576,401 +673,117 @@ editModalHeader: {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 16,
-    flexWrap: 'wrap',
   },
   modalTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  userAvatar: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-  userName: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: 24,
+    fontWeight: '800',
+    color: COLORS.textMain,
+    flex: 1,
+    marginRight: 12,
   },
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
-    flexWrap: 'wrap',
-    justifyContent: 'flex-end',
   },
   iconButton: {
-    backgroundColor: '#F9FAFB',
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: 14,
+    backgroundColor: '#F9FAFB',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#F3F4F6',
   },
   iconButtonActive: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#F59E0B',
-  },
-  iconButtonText: {
-    fontSize: 20,
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   description: {
     fontSize: 15,
-    color: '#4B5563',
-    lineHeight: 24,
+    color: COLORS.textSecondary,
+    lineHeight: 22,
     marginBottom: 20,
-    flexWrap: 'wrap',
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 16,
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   infoItem: {
-    flex: 1,
     alignItems: 'center',
-  },
-  infoIcon: {
-    fontSize: 24,
-    marginBottom: 4,
   },
   infoText: {
     fontSize: 13,
-    color: '#6B7280',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    marginBottom: 24,
-    paddingBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  statText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginRight: 20,
-  },
-  section: {
-    marginBottom: 24,
+    fontWeight: '800',
+    color: COLORS.textMain,
+    marginTop: 6,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontWeight: '800',
+    color: COLORS.textMain,
     marginBottom: 12,
   },
   ingredientItem: {
-    fontSize: 15,
-    color: '#4B5563',
-    lineHeight: 28,
-    paddingLeft: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    backgroundColor: '#F9FAFB',
+    padding: 10,
+    borderRadius: 10,
+  },
+  ingredientText: {
+    fontSize: 14,
+    color: COLORS.textMain,
+    fontWeight: '500',
   },
   instructions: {
     fontSize: 15,
-    color: '#4B5563',
+    color: COLORS.textMain,
     lineHeight: 24,
+    marginBottom: 40,
   },
-
-  // Bottom Navigation
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingBottom: 20,
-    paddingTop: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 10,
-  },
-  navButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  navIcon: {
-    fontSize: 24,
-    marginBottom: 4,
-    opacity: 0.5,
-  },
-  navIconActive: {
-    opacity: 1,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    fontWeight: '500',
-  },
-  navLabelActive: {
-    color: '#F97316',
-    fontWeight: '600',
-  },
-  imageUploadContainer: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 16,
-    backgroundColor: '#F9FAFB',
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed',
-  },
-  uploadedImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  imageUploadPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageUploadIcon: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  imageUploadText: {
-    fontSize: 16,
-    color: '#6B7280',
-  },
-
-  //Recipe Card Actions 
-  recipeActionsBottomRight: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    flexDirection: 'column',
-    gap: 12,
-  },
-  actionButtonNew: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 30,
-    width: 60,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  actionButtonLiked: {
-    backgroundColor: '#FEE2E2',
-    borderColor: '#EF4444',
-  },
-  actionButtonSaved: {
-    backgroundColor: '#DBEAFE',
-    borderColor: '#3B82F6',
-  },
-  actionIconNew: {
-    fontSize: 28,
-  },
-
-  // Profile Avatar Image 
-  profileAvatarImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 16,
-    borderWidth: 4,
-    borderColor: '#FFFFFF',
-  },
-  profileBio: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.9,
-    textAlign: 'center',
-    marginTop: 8,
-    paddingHorizontal: 40,
-  },
-  recipeUserAvatarImage: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 8,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-
-  // Edit Profile Button 
-  editProfileButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-  },
-  editProfileText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-
-  // Edit Profile Modal 
-  editModalContainer: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  editModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  editModalCancel: {
-    fontSize: 16,
-    color: '#6B7280',
-  },
-  editModalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  editModalSave: {
-    fontSize: 16,
-    color: '#F97316',
-    fontWeight: '600',
-  },
-  editModalContent: {
-    flex: 1,
-    padding: 20,
-  },
-  editAvatarContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  editAvatarImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 16,
-    borderWidth: 4,
-    borderColor: '#F97316',
-  },
-  changeAvatarButton: {
-    backgroundColor: '#F97316',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  changeAvatarText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  
   servingsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
+    gap: 12,
+    marginTop: 4,
   },
-
   servingsInputWrapper: {
     flex: 1,
   },
-
   servingsLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.textSecondary,
     marginBottom: 4,
-    fontWeight: '500',
-  },
-
-  servingsInput: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: '#1F2937',
-    textAlign: 'center',
-  },
-
-  servingsSeparator: {
-    fontSize: 24,
-    color: '#9CA3AF',
-    fontWeight: 'bold',
-    marginHorizontal: 12,
-    marginTop: 20,
-  },
-
-  servingsHint: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 16,
-    fontStyle: 'italic',
-    lineHeight: 18,
-  },
-  modalUserInfo: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginTop: 12,
-  paddingVertical: 8,
-},
-
-  modalUserAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-    borderWidth: 2,
-    borderColor: '#F97316',
-  },
-
-  modalUserTextContainer: {
-    flex: 1,
-  },
-
-  modalUserName: {
-    fontSize: 16,
-    color: '#1F2937',
     fontWeight: '600',
-    marginBottom: 2,
   },
-
-  modalUserBio: {
-    fontSize: 13,
-    color: '#6B7280',
+  servingsInput: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 14,
+    color: COLORS.textMain,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  servingsSeparator: {
+    fontSize: 20,
+    color: COLORS.textMuted,
+    marginTop: 18,
+  },
+  servingsHint: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: 8,
     fontStyle: 'italic',
   },
-
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  userAvatar: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-
-  userName: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  
 });
 
 export default styles;
