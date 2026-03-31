@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 12 : 30,
+    paddingTop: Platform.OS === 'ios' ? 44 : 24,
     paddingBottom: 16,
     borderBottomWidth: 1, // Proper border below header area
     borderBottomColor: 'rgba(0,0,0,0.05)',
@@ -322,6 +322,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 6,
+  },
+  reviewCountText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 8,
   },
   premiumRecipeTitle: {
     fontSize: 17,
@@ -673,6 +678,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 16,
+    gap: 12,
   },
   modalTitle: {
     fontSize: 24,
@@ -680,6 +686,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMain,
     flex: 1,
     marginRight: 12,
+    flexWrap: 'wrap',
   },
   actionButtons: {
     flexDirection: 'row',

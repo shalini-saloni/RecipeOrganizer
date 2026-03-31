@@ -68,7 +68,7 @@ const AiChefScreen = ({ user, token }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#FFFFFF' }]}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={[styles.safeArea, { backgroundColor: '#FFFFFF' }]}>
       <LinearGradient
         colors={['#FDBA74', '#FFFFFF']}
         start={{ x: 0, y: 0 }}

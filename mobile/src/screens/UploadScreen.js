@@ -145,7 +145,7 @@ const UploadScreen = ({ user, token }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.flex1}
     >
-      <SafeAreaView style={[styles.uploadContainer, { backgroundColor: '#FFFFFF' }]}>
+      <SafeAreaView edges={['left', 'right', 'bottom']} style={[styles.uploadContainer, { backgroundColor: '#FFFFFF' }]}>
         <LinearGradient
           colors={['#FDBA74', '#FFFFFF']}
           start={{ x: 0, y: 0 }}

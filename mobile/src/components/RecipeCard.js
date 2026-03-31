@@ -60,9 +60,13 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave, currentUser, isVertical }
           </Text>
           <View style={styles.ratingBadge}>
             <Ionicons name="star" size={10} color="#EA580C" />
-            <Text style={styles.ratingText}>{recipe.rating || '4.8'}</Text>
+            <Text style={styles.ratingText}>{recipe.reviewsCount > 0 ? recipe.rating?.toFixed(1) : 'New'}</Text>
           </View>
         </View>
+
+        <Text style={styles.reviewCountText}>
+          {recipe.reviewsCount ? `${recipe.reviewsCount} reviews` : 'No reviews yet'}
+        </Text>
 
         <Text style={styles.premiumRecipeDesc} numberOfLines={2}>
           {recipe.description}
@@ -73,7 +77,7 @@ const RecipeCard = ({ recipe, onPress, onLike, onSave, currentUser, isVertical }
             source={{ uri: recipe.userId?.avatar || 'https://ui-avatars.com/api/?name=User&background=F97316&color=fff' }}
             style={styles.premiumAuthorAvatar}
           />
-          <Text style={styles.premiumAuthorName}>
+          <Text style={[styles.premiumAuthorName, { flex: 1 }]} numberOfLines={1}>
             {recipe.userId?.name?.split(' ')[0] || 'Chef'}
           </Text>
           

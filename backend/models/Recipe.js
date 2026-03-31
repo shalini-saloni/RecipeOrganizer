@@ -24,7 +24,7 @@ const recipeSchema = new mongoose.Schema({
   },
   rating: {
     type: Number,
-    default: 4.5
+    default: 0
   },
   reviewsCount: {
     type: Number,

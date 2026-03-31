@@ -66,7 +66,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         default:
           data = [];
       }
-      setRecipes(data || []);
+      setRecipes((data || []).filter(r => (r.rating ?? 0) >= 4));
     } catch (error) {
       console.error('Profile load error:', error);
       setRecipes([]);
@@ -169,7 +169,7 @@ const ProfileScreen = ({ user, token, onLogout, onUserUpdate }) => {
         end={{ x: 0, y: 1 }}
         style={styles.profileHeader}
       >
-        <SafeAreaView>
+        <SafeAreaView edges={['left', 'right', 'bottom']}>
           <View style={styles.topHeader}>
             <Text style={styles.sectionTitleBlack}>Profile</Text>
             <TouchableOpacity onPress={() => openEditModal()} style={styles.editProfileButtonSmall}>

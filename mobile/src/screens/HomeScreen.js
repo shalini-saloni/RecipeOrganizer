@@ -20,6 +20,7 @@ import { getRecipes, toggleLike, toggleSave } from '../services/api';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import CategoryPills from '../components/CategoryPills';
+import AllRecipesScreen from './AllRecipesScreen';
 import styles from '../styles/styles';
 
 const { width } = Dimensions.get('window');
@@ -31,6 +32,7 @@ const HomeScreen = ({ user, token }) => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showAllRecipes, setShowAllRecipes] = useState(null); // null or section title string
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -75,7 +77,6 @@ const HomeScreen = ({ user, token }) => {
   const handleLike = async (recipeId) => {
     try {
       const response = await toggleLike(token, recipeId);
-      // Update state with actual backend response data
       setRecipes(prevRecipes =>
         prevRecipes.map(recipe =>
           recipe._id === recipeId
@@ -95,7 +96,6 @@ const HomeScreen = ({ user, token }) => {
   const handleSave = async (recipeId) => {
     try {
       const response = await toggleSave(token, recipeId);
-      // Update state with actual backend response data
       setRecipes(prevRecipes =>
         prevRecipes.map(recipe =>
           recipe._id === recipeId
@@ -118,11 +118,16 @@ const HomeScreen = ({ user, token }) => {
     setRefreshing(false);
   };
 
-  const trendingRecipes = recipes.filter(r => 
-    activeCategory === 'All' || 
-    (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase())
-  );
-  
+  // Popular recipes — sorted by likes, only 4+ rating
+  const popularRecipes = [...recipes]
+    .filter(r =>
+      (activeCategory === 'All' ||
+      (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase())) &&
+      (r.rating >= 4 || r.reviewsCount === 0)
+    )
+    .sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
+
+  // Recently added — sorted by date, show latest 5
   const newestRecipes = [...recipes]
     .filter(r => activeCategory === 'All' || (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase()))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -132,12 +137,26 @@ const HomeScreen = ({ user, token }) => {
     <View style={styles.sectionHeaderLine}>
       <Text style={styles.sectionTitleBlack}>{title}</Text>
       {showSeeAll && (
-        <TouchableOpacity activeOpacity={0.6}>
+        <TouchableOpacity
+          activeOpacity={0.6}
+          onPress={() => setShowAllRecipes(true)}
+        >
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>
       )}
     </View>
   );
+
+  // If "See All" was tapped, show the full-screen reel view
+  if (showAllRecipes) {
+    return (
+      <AllRecipesScreen
+        user={user}
+        token={token}
+        onBack={() => setShowAllRecipes(null)}
+      />
+    );
+  }
 
   if (loading && !refreshing) {
     return (
@@ -212,12 +231,12 @@ const HomeScreen = ({ user, token }) => {
           </View>
         </LinearGradient>
 
-        {/* Recommendation Section */}
+        {/* Popular Recipes Section */}
         {renderSectionHeader('Popular Recipes')}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={trendingRecipes}
+          data={popularRecipes}
           keyExtractor={(item) => item._id}
           contentContainerStyle={{ paddingHorizontal: 20 }}
           renderItem={({ item }) => (
@@ -236,7 +255,7 @@ const HomeScreen = ({ user, token }) => {
           }
         />
 
-        {/* Newest Recipes */}
+        {/* Recently Added Section */}
         <View style={{ marginTop: 12 }}>
           {renderSectionHeader('Recently Added')}
           <FlatList
@@ -248,11 +267,17 @@ const HomeScreen = ({ user, token }) => {
             renderItem={({ item }) => (
               <RecipeCard
                 recipe={item}
+                currentUser={user}
                 onPress={() => setSelectedRecipe(item)}
                 onLike={handleLike}
                 onSave={handleSave}
               />
             )}
+            ListEmptyComponent={
+              <View style={{ width: width - 40, alignItems: 'center', padding: 20 }}>
+                <Text style={styles.emptyTextInline}>No recipes found here yet.</Text>
+              </View>
+            }
           />
         </View>
       </ScrollView>

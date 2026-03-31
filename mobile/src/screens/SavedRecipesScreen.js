@@ -22,7 +22,7 @@ const SavedRecipesScreen = ({ user, token }) => {
     try {
       setLoading(true);
       const data = await getSavedRecipes(token);
-      setRecipes(data);
+      setRecipes(data.filter(recipe => (recipe.rating ?? 0) >= 4));
     } catch (e) {
       console.log('Failed to fetch saved recipes');
     } finally {
@@ -69,7 +69,7 @@ const SavedRecipesScreen = ({ user, token }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#FFFFFF' }]}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={[styles.safeArea, { backgroundColor: '#FFFFFF' }]}>
       <LinearGradient
         colors={['#FDBA74', '#FFFFFF']}
         start={{ x: 0, y: 0 }}

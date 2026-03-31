@@ -86,7 +86,7 @@ export default function App() {
     <SafeAreaProvider>
       <>
         <StatusBar style="light" />
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
           {activeScreen === 'home' && <HomeScreen user={user} token={token} />}
           {activeScreen === 'saved' && <SavedRecipesScreen user={user} token={token} />}
           {activeScreen === 'ai_chef' && <AiChefScreen user={user} token={token} />}

@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // For real device: const API_URL = 'http://YOUR_LOCAL_IP:3000/api';
 // Using local IP for device connection
-const API_URL = 'http://20.20.17.8:3000/api';
+const API_URL = 'http://11.6.2.74:3000/api';
 
 
 const api = axios.create({
@@ -108,6 +108,21 @@ export const deleteRecipe = async (token, recipeId) => {
 
 export const updateRecipe = async (token, recipeId, recipeData) => {
   const response = await api.put(`/recipes/${recipeId}`, recipeData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+// Review APIs
+export const getReviews = async (token, recipeId) => {
+  const response = await api.get(`/reviews/${recipeId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const submitReview = async (token, recipeId, rating, comment) => {
+  const response = await api.post(`/reviews/${recipeId}`, { rating, comment }, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return response.data;
