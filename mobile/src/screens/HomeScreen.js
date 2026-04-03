@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useContext } from 'react';
+import RecipeContext from '../context/RecipeContext';
 import {
   View,
   Text,
@@ -26,13 +28,17 @@ import styles from '../styles/styles';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ user, token }) => {
-  const [recipes, setRecipes] = useState([]);
+  // allRecipes does NOT exist in context — use a ref to cache the unfiltered base list locally
+  const { homeRecipes, setHomeRecipes } = useContext(RecipeContext);
+  const allRecipesRef = useRef([]);
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showAllRecipes, setShowAllRecipes] = useState(null); // null or section title string
+  const [showAllRecipes, setShowAllRecipes] = useState(null);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -42,26 +48,37 @@ const HomeScreen = ({ user, token }) => {
   };
 
   useEffect(() => {
-    loadRecipes();
+    if (homeRecipes.length === 0) {
+      loadRecipes();
+    } else {
+      // Seed ref if context already populated (e.g. coming back from AllRecipes)
+      if (allRecipesRef.current.length === 0) {
+        allRecipesRef.current = homeRecipes;
+      }
+      setLoading(false);
+    }
   }, []);
 
   const loadRecipes = async () => {
     try {
       setLoading(true);
       const data = await getRecipes(token);
-      setRecipes(data);
+      allRecipesRef.current = data; // cache base list
+      setHomeRecipes(data);
     } catch (error) {
-      console.log("Recipe Fetch Error:", error.message);
+      console.log('Recipe Fetch Error:', error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
     try {
       setLoading(true);
       const data = await getRecipes(token, searchQuery);
-      setRecipes(data);
+      setHomeRecipes(data);
+      setIsSearching(true);
     } catch (error) {
       console.log('Search failed', error);
     } finally {
@@ -71,21 +88,42 @@ const HomeScreen = ({ user, token }) => {
 
   const clearSearch = async () => {
     setSearchQuery('');
-    await loadRecipes();
+    setIsSearching(false);
+    if (allRecipesRef.current.length > 0) {
+      // Restore from local cache — no API call needed
+      setHomeRecipes(allRecipesRef.current);
+    } else {
+      // Edge case: cache empty, re-fetch
+      try {
+        setLoading(true);
+        const data = await getRecipes(token);
+        allRecipesRef.current = data;
+        setHomeRecipes(data);
+      } catch (error) {
+        console.log('Clear search fetch failed', error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const handleLike = async (recipeId) => {
     try {
       const response = await toggleLike(token, recipeId);
-      setRecipes(prevRecipes =>
+      setHomeRecipes(prevRecipes =>
         prevRecipes.map(recipe =>
           recipe._id === recipeId
             ? { ...recipe, likesCount: response.likesCount, liked: response.liked }
             : recipe
         )
       );
-      
-      if (selectedRecipe && selectedRecipe._id === recipeId) {
+      // Keep ref in sync so cancel-search restores correct state
+      allRecipesRef.current = allRecipesRef.current.map(r =>
+        r._id === recipeId
+          ? { ...r, likesCount: response.likesCount, liked: response.liked }
+          : r
+      );
+      if (selectedRecipe?._id === recipeId) {
         setSelectedRecipe(prev => ({ ...prev, likesCount: response.likesCount, liked: response.liked }));
       }
     } catch (error) {
@@ -96,15 +134,20 @@ const HomeScreen = ({ user, token }) => {
   const handleSave = async (recipeId) => {
     try {
       const response = await toggleSave(token, recipeId);
-      setRecipes(prevRecipes =>
+      setHomeRecipes(prevRecipes =>
         prevRecipes.map(recipe =>
           recipe._id === recipeId
             ? { ...recipe, savesCount: response.savesCount, saved: response.saved }
             : recipe
         )
       );
-
-      if (selectedRecipe && selectedRecipe._id === recipeId) {
+      // Keep ref in sync
+      allRecipesRef.current = allRecipesRef.current.map(r =>
+        r._id === recipeId
+          ? { ...r, savesCount: response.savesCount, saved: response.saved }
+          : r
+      );
+      if (selectedRecipe?._id === recipeId) {
         setSelectedRecipe(prev => ({ ...prev, savesCount: response.savesCount, saved: response.saved }));
       }
     } catch (error) {
@@ -114,22 +157,29 @@ const HomeScreen = ({ user, token }) => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadRecipes();
+    try {
+      const data = await getRecipes(token);
+      allRecipesRef.current = data;
+      setHomeRecipes(data);
+    } catch (error) {
+      console.log('Refresh error:', error);
+    }
     setRefreshing(false);
   };
 
-  // Popular recipes — sorted by likes, only 4+ rating
-  const popularRecipes = [...recipes]
+  const popularRecipes = [...homeRecipes]
     .filter(r =>
       (activeCategory === 'All' ||
-      (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase())) &&
-      (r.rating >= 4 || r.reviewsCount === 0)
+        (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase())) &&
+      (isSearching || r.rating >= 4 || r.reviewsCount === 0)
     )
     .sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
 
-  // Recently added — sorted by date, show latest 5
-  const newestRecipes = [...recipes]
-    .filter(r => activeCategory === 'All' || (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase()))
+  const newestRecipes = [...homeRecipes]
+    .filter(r =>
+      activeCategory === 'All' ||
+      (r.cuisine && r.cuisine.toLowerCase() === activeCategory.toLowerCase())
+    )
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
 
@@ -137,17 +187,13 @@ const HomeScreen = ({ user, token }) => {
     <View style={styles.sectionHeaderLine}>
       <Text style={styles.sectionTitleBlack}>{title}</Text>
       {showSeeAll && (
-        <TouchableOpacity
-          activeOpacity={0.6}
-          onPress={() => setShowAllRecipes(true)}
-        >
+        <TouchableOpacity activeOpacity={0.6} onPress={() => setShowAllRecipes(true)}>
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 
-  // If "See All" was tapped, show the full-screen reel view
   if (showAllRecipes) {
     return (
       <AllRecipesScreen
@@ -172,7 +218,9 @@ const HomeScreen = ({ user, token }) => {
       <StatusBar barStyle="dark-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F97316" />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F97316" />
+        }
         contentContainerStyle={styles.homeScrollContent}
       >
         <LinearGradient
@@ -180,12 +228,15 @@ const HomeScreen = ({ user, token }) => {
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
         >
-          {/* Compact Header */}
+          {/* Header */}
           <View style={styles.topHeader}>
             <View style={styles.greetingRow}>
-              <Image 
-                source={{ uri: user?.avatar || 'https://ui-avatars.com/api/?name=User&background=F97316&color=fff' }} 
-                style={styles.headerAvatar} 
+              <Image
+                source={{
+                  uri: user?.avatar ||
+                    'https://ui-avatars.com/api/?name=User&background=F97316&color=fff',
+                }}
+                style={styles.headerAvatar}
               />
               <View>
                 <Text style={styles.greetingSubText}>{getGreeting()}</Text>
@@ -202,7 +253,7 @@ const HomeScreen = ({ user, token }) => {
             <Text style={{ fontSize: 28, fontWeight: '300', color: '#1F2937' }}>to cook today?</Text>
           </View>
 
-          {/* Compact Search Bar */}
+          {/* Search Bar */}
           <View style={styles.modernSearchContainer}>
             <Feather name="search" size={18} color="#9CA3AF" />
             <TextInput
@@ -214,7 +265,7 @@ const HomeScreen = ({ user, token }) => {
               placeholderTextColor="#9CA3AF"
             />
             {searchQuery ? (
-              <TouchableOpacity onPress={() => clearSearch()}>
+              <TouchableOpacity onPress={clearSearch}>
                 <Feather name="x" size={18} color="#F97316" />
               </TouchableOpacity>
             ) : (
@@ -222,17 +273,17 @@ const HomeScreen = ({ user, token }) => {
             )}
           </View>
 
-          {/* Cuisines Filters */}
+          {/* Category Pills */}
           <View style={{ marginBottom: 8 }}>
-              <CategoryPills 
-              activeCategory={activeCategory} 
-              onSelectCategory={setActiveCategory} 
-              />
+            <CategoryPills
+              activeCategory={activeCategory}
+              onSelectCategory={setActiveCategory}
+            />
           </View>
         </LinearGradient>
 
-        {/* Popular Recipes Section */}
-        {renderSectionHeader('Popular Recipes')}
+        {/* Popular / Search Results */}
+        {renderSectionHeader(isSearching ? 'Search Results' : 'Popular Recipes')}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -250,36 +301,38 @@ const HomeScreen = ({ user, token }) => {
           )}
           ListEmptyComponent={
             <View style={{ width: width - 40, alignItems: 'center', padding: 20 }}>
-               <Text style={styles.emptyTextInline}>No recipes found here yet.</Text>
+              <Text style={styles.emptyTextInline}>No recipes found here yet.</Text>
             </View>
           }
         />
 
-        {/* Recently Added Section */}
-        <View style={{ marginTop: 12 }}>
-          {renderSectionHeader('Recently Added')}
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={newestRecipes}
-            keyExtractor={(item) => item._id + 'new'}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 60 }}
-            renderItem={({ item }) => (
-              <RecipeCard
-                recipe={item}
-                currentUser={user}
-                onPress={() => setSelectedRecipe(item)}
-                onLike={handleLike}
-                onSave={handleSave}
-              />
-            )}
-            ListEmptyComponent={
-              <View style={{ width: width - 40, alignItems: 'center', padding: 20 }}>
-                <Text style={styles.emptyTextInline}>No recipes found here yet.</Text>
-              </View>
-            }
-          />
-        </View>
+        {/* Recently Added — hidden during search */}
+        {!isSearching && (
+          <View style={{ marginTop: 12 }}>
+            {renderSectionHeader('Recently Added')}
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={newestRecipes}
+              keyExtractor={(item) => item._id + 'new'}
+              contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 60 }}
+              renderItem={({ item }) => (
+                <RecipeCard
+                  recipe={item}
+                  currentUser={user}
+                  onPress={() => setSelectedRecipe(item)}
+                  onLike={handleLike}
+                  onSave={handleSave}
+                />
+              )}
+              ListEmptyComponent={
+                <View style={{ width: width - 40, alignItems: 'center', padding: 20 }}>
+                  <Text style={styles.emptyTextInline}>No recipes found here yet.</Text>
+                </View>
+              }
+            />
+          </View>
+        )}
       </ScrollView>
 
       <RecipeDetailModal

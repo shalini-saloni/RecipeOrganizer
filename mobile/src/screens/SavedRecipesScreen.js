@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import RecipeContext from '../context/RecipeContext';
 import { View, Text, FlatList, ActivityIndicator, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSavedRecipes, toggleLike, toggleSave } from '../services/api';
@@ -10,19 +12,24 @@ import styles from '../styles/styles';
 const { width } = Dimensions.get('window');
 
 const SavedRecipesScreen = ({ user, token }) => {
-  const [recipes, setRecipes] = useState([]);
+  const { savedRecipes, setSavedRecipes } = useContext(RecipeContext);
   const [loading, setLoading] = useState(true);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   useEffect(() => {
-    loadSaved();
+    if (savedRecipes.length === 0) {
+      loadSaved();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const loadSaved = async () => {
     try {
       setLoading(true);
       const data = await getSavedRecipes(token);
-      setRecipes(data.filter(recipe => (recipe.rating ?? 0) >= 4));
+      const filtered = data.filter(recipe => (recipe.rating ?? 0) >= 4);
+      setSavedRecipes(filtered);
     } catch (e) {
       console.log('Failed to fetch saved recipes');
     } finally {
@@ -33,7 +40,7 @@ const SavedRecipesScreen = ({ user, token }) => {
   const handleLike = async (recipeId) => {
     try {
       const response = await toggleLike(token, recipeId);
-      setRecipes(prevRecipes =>
+      setSavedRecipes(prevRecipes =>
         prevRecipes.map(recipe =>
           recipe._id === recipeId
             ? { ...recipe, likesCount: response.likesCount, liked: response.liked }
@@ -52,7 +59,7 @@ const SavedRecipesScreen = ({ user, token }) => {
       const response = await toggleSave(token, recipeId);
       // For saved screen, if we unsave, we might want to remove it or just update the icon
       // Setting response status directly
-      setRecipes(prevRecipes =>
+      setSavedRecipes(prevRecipes =>
         prevRecipes.map(recipe =>
           recipe._id === recipeId
             ? { ...recipe, savesCount: response.savesCount, saved: response.saved }
@@ -87,7 +94,7 @@ const SavedRecipesScreen = ({ user, token }) => {
       ) : (
         <View style={{ flex: 1 }}>
           <FlatList
-            data={recipes}
+            data={savedRecipes}
             keyExtractor={item => item._id}
             contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 150 }}
             showsVerticalScrollIndicator={false}

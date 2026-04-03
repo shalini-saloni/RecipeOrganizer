@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useContext } from 'react';
+import RecipeContext from '../context/RecipeContext';
 import {
   View,
   Text,
@@ -10,50 +12,57 @@ import {
   StatusBar,
   ActivityIndicator,
   StyleSheet,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from 'react-native';
-import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets as useInsets } from 'react-native-safe-area-context';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getRecipes, toggleLike, toggleSave } from '../services/api';
+import { toggleLike, toggleSave } from '../services/api';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import styles from '../styles/styles';
 
 const { width, height } = Dimensions.get('window');
 
+// Tab bar height constant — adjust if your tab bar height differs
+const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 83 : 60;
+
 const AllRecipesScreen = ({ user, token, onBack }) => {
-  const [recipes, setRecipes] = useState([]);
+  const { homeRecipes, setHomeRecipes } = useContext(RecipeContext);
+  const insets = useInsets();
   const [loading, setLoading] = useState(true);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [cardHeight, setCardHeight] = useState(height);
+  const [cardHeight, setCardHeight] = useState(height - TAB_BAR_HEIGHT);
 
   useEffect(() => {
-    loadRecipes();
-  }, []);
-
-  const loadRecipes = async () => {
-    try {
-      setLoading(true);
-      const data = await getRecipes(token);
-      // Sort by newest first
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setRecipes(data);
-    } catch (error) {
-      console.log('Load error:', error.message);
-    } finally {
+    if (homeRecipes.length > 0) {
       setLoading(false);
     }
-  };
+  }, [homeRecipes]);
 
+  const recipes = [...homeRecipes].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  // Update homeRecipes in context after like/save so HomeScreen stays in sync
   const handleLike = async (recipeId) => {
     try {
       const response = await toggleLike(token, recipeId);
-      setRecipes(prev =>
+      setHomeRecipes(prev =>
         prev.map(r =>
           r._id === recipeId
             ? { ...r, likesCount: response.likesCount, liked: response.liked }
             : r
         )
       );
+      if (selectedRecipe && selectedRecipe._id === recipeId) {
+        setSelectedRecipe(prev => ({
+          ...prev,
+          likesCount: response.likesCount,
+          liked: response.liked,
+        }));
+      }
     } catch (error) {
       console.error('Like failed', error);
     }
@@ -62,13 +71,20 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
   const handleSave = async (recipeId) => {
     try {
       const response = await toggleSave(token, recipeId);
-      setRecipes(prev =>
+      setHomeRecipes(prev =>
         prev.map(r =>
           r._id === recipeId
             ? { ...r, savesCount: response.savesCount, saved: response.saved }
             : r
         )
       );
+      if (selectedRecipe && selectedRecipe._id === recipeId) {
+        setSelectedRecipe(prev => ({
+          ...prev,
+          savesCount: response.savesCount,
+          saved: response.saved,
+        }));
+      }
     } catch (error) {
       console.error('Save failed', error);
     }
@@ -84,16 +100,17 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
 
   const currentUserId = user?.id || user?._id;
 
-  // Measure the actual container height for perfect snapping
+  // Measure container height dynamically to perfectly snap cards
   const onContainerLayout = useCallback((e) => {
     const h = e.nativeEvent.layout.height;
     if (h > 0) setCardHeight(h);
   }, []);
 
-  const renderReelCard = ({ item, index }) => {
+  const renderReelCard = ({ item }) => {
     const isLiked = item.liked !== undefined
       ? item.liked
       : (item.likes && currentUserId && item.likes.includes(currentUserId));
+
     const isSaved = item.saved !== undefined
       ? item.saved
       : (item.saves && currentUserId && item.saves.includes(currentUserId));
@@ -107,15 +124,20 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
           resizeMode="cover"
         />
 
-        {/* Gradient overlay */}
+        {/* Gradient overlay — stronger at bottom to clear tab bar */}
         <LinearGradient
-          colors={['rgba(0,0,0,0.15)', 'transparent', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.88)']}
+          colors={[
+            'rgba(0,0,0,0.15)',
+            'transparent',
+            'rgba(0,0,0,0.3)',
+            'rgba(0,0,0,0.92)',
+          ]}
           locations={[0, 0.25, 0.55, 1]}
           style={reelStyles.gradientOverlay}
         />
 
-        {/* Right side action buttons (like Instagram reels) */}
-        <View style={reelStyles.actionColumn}>
+        {/* Right side action buttons */}
+        <View style={[reelStyles.actionColumn, { bottom: TAB_BAR_HEIGHT + 100 }]}>
           <TouchableOpacity
             style={reelStyles.actionBtn}
             onPress={() => handleLike(item._id)}
@@ -158,14 +180,14 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Bottom content */}
-        <View style={reelStyles.bottomContent}>
+        {/* Bottom content — sits above tab bar */}
+        <View style={[reelStyles.bottomContent, { bottom: TAB_BAR_HEIGHT + 16 }]}>
           {/* Author row */}
           <View style={reelStyles.authorRow}>
             <Image
               source={{
                 uri: item.userId?.avatar ||
-                  'https://ui-avatars.com/api/?name=User&background=F97316&color=fff'
+                  'https://ui-avatars.com/api/?name=User&background=F97316&color=fff',
               }}
               style={reelStyles.authorAvatar}
             />
@@ -220,8 +242,8 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <StatusBar barStyle="light-content" />
 
-      {/* Header overlay — always on top */}
-      <View style={reelStyles.headerOverlay}>
+      {/* Header overlay — sits above everything */}
+      <View style={[reelStyles.headerOverlay, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity
           onPress={onBack}
           style={reelStyles.backButton}
@@ -235,10 +257,13 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
         </View>
       </View>
 
-      {/* Full-screen reel container — measures its own height for perfect snapping */}
-      <View style={{ flex: 1 }} onLayout={onContainerLayout}>
+      {/* FlatList container — stops at tab bar top */}
+      <View
+        style={{ flex: 1, marginBottom: TAB_BAR_HEIGHT }}
+        onLayout={onContainerLayout}
+      >
         <FlatList
-          data={recipes}
+          data={homeRecipes}
           keyExtractor={(item) => item._id}
           renderItem={renderReelCard}
           pagingEnabled
@@ -255,22 +280,21 @@ const AllRecipesScreen = ({ user, token, onBack }) => {
           ListEmptyComponent={
             <View style={{ height: cardHeight, justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="restaurant-outline" size={48} color="rgba(255,255,255,0.3)" />
-              <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, marginTop: 12 }}>No recipes yet.</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, marginTop: 12 }}>
+                No recipes yet.
+              </Text>
             </View>
           }
         />
       </View>
 
-      {/* Scroll progress dots on the right edge */}
+      {/* Scroll progress dots */}
       {recipes.length > 1 && (
-        <View style={reelStyles.scrollIndicator}>
+        <View style={[reelStyles.scrollIndicator, { bottom: TAB_BAR_HEIGHT + 80 }]}>
           {recipes.slice(0, Math.min(recipes.length, 10)).map((_, i) => (
             <View
               key={i}
-              style={[
-                reelStyles.dot,
-                activeIndex === i && reelStyles.dotActive,
-              ]}
+              style={[reelStyles.dot, activeIndex === i && reelStyles.dotActive]}
             />
           ))}
           {recipes.length > 10 && (
@@ -301,7 +325,11 @@ const reelStyles = StyleSheet.create({
     backgroundColor: '#000',
   },
   backgroundImage: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 100,
+    left: 0,
+    width: width,        
+    height: 550,
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -312,7 +340,6 @@ const reelStyles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 20,
-    paddingTop: Platform.OS === 'ios' ? 54 : 34,
     paddingHorizontal: 20,
     paddingBottom: 14,
     flexDirection: 'row',
@@ -348,10 +375,10 @@ const reelStyles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
   },
+  // Dynamic bottom set inline using TAB_BAR_HEIGHT
   actionColumn: {
     position: 'absolute',
     right: 14,
-    bottom: 200,
     alignItems: 'center',
     zIndex: 10,
     gap: 18,
@@ -378,9 +405,9 @@ const reelStyles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
+  // Dynamic bottom set inline using TAB_BAR_HEIGHT
   bottomContent: {
     position: 'absolute',
-    bottom: 24,
     left: 0,
     right: 72,
     paddingHorizontal: 20,
@@ -458,10 +485,10 @@ const reelStyles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
+  // Dynamic bottom set inline using TAB_BAR_HEIGHT
   scrollIndicator: {
     position: 'absolute',
     right: 5,
-    top: '42%',
     alignItems: 'center',
     gap: 3,
     zIndex: 15,
