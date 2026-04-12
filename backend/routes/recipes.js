@@ -22,7 +22,6 @@ router.get('/', async (req, res) => {
       };
     }
 
-    // Exclude AI-generated recipes from the main public lists (popular/recent)
     if (!query.category) {
       query.category = { $ne: 'AI Generated' };
     }
@@ -125,12 +124,10 @@ router.put('/:id', auth, [
       return res.status(404).json({ error: 'Recipe not found' });
     }
 
-    // Check if user owns the recipe
     if (recipe.userId.toString() !== req.userId) {
       return res.status(403).json({ error: 'Not authorized to edit this recipe' });
     }
 
-    // Update recipe fields
     Object.assign(recipe, req.body);
     await recipe.save();
     await recipe.populate('userId', 'name avatar');
@@ -154,7 +151,6 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ error: 'Recipe not found' });
     }
 
-    // Check if user owns the recipe
     if (recipe.userId.toString() !== req.userId) {
       return res.status(403).json({ error: 'Not authorized to delete this recipe' });
     }
@@ -226,7 +222,7 @@ router.post('/:id/save', auth, async (req, res) => {
 // Get user's recipes
 router.get('/user/uploaded', auth, async (req, res) => {
   try {
-    // Exclude AI-generated recipes from the user uploaded list
+    
     const recipes = await Recipe.find({
       userId: req.userId,
       category: { $ne: 'AI Generated' }

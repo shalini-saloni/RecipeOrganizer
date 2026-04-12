@@ -5,10 +5,8 @@ const Recipe = require('../models/Recipe');
 
 const router = express.Router();
 
-// Initialize Gemini
 const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// Generate recipe from ingredients
 router.post('/generate', auth, async (req, res) => {
   try {
     const { ingredients } = req.body;
@@ -39,7 +37,6 @@ router.post('/generate', auth, async (req, res) => {
     });
     const text = response.text;
 
-    // Clean potential markdown formatting from JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       console.error('Gemini response was not JSON:', text);
@@ -54,7 +51,6 @@ router.post('/generate', auth, async (req, res) => {
       return res.status(500).json({ error: 'AI generated invalid data format. Try again.' });
     }
 
-    // Generate image using a reliable food image
     const imageUrl = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop&crop=center';
 
     const recipe = new Recipe({
@@ -78,7 +74,6 @@ router.post('/generate', auth, async (req, res) => {
   }
 });
 
-// Cleanup AI-generated recipes for current user (optional)
 router.delete('/cleanup', auth, async (req, res) => {
   try {
     const result = await Recipe.deleteMany({ userId: req.userId, category: 'AI Generated' });

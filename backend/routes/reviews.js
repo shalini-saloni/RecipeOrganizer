@@ -39,7 +39,6 @@ router.post('/:recipeId', auth, [
       return res.status(404).json({ error: 'Recipe not found' });
     }
 
-    // Upsert: create or update the user's review
     const review = await Review.findOneAndUpdate(
       { recipeId, userId: req.userId },
       { rating, comment, recipeId, userId: req.userId },
@@ -48,7 +47,6 @@ router.post('/:recipeId', auth, [
 
     await review.populate('userId', 'name avatar');
 
-    // Recompute recipe average rating and reviewsCount
     const allReviews = await Review.find({ recipeId });
     const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
     recipe.rating = Math.round(avgRating * 10) / 10;
